@@ -1,17 +1,11 @@
 from flask import Flask, request, redirect
 import os
-import xlsxwriter
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
+import xlsxwriter
 
-# open a terminal window
-# cd to ratchat directory
-# ./ngrok http 5000
-# copy webhook url
-# open second terminal window
-# cd to ratchat directory
-# python receive_sms.py
+import mysql.connector
+from mysql.connector import errorcode
 
-#connect to db
 try:
 
     config = {
@@ -33,6 +27,13 @@ except mysql.connector.Error as e:
     else:
         print e
 
+# open a terminal window
+# cd to ratchat directory
+# ./ngrok http 5000
+# copy webhook url
+# open second terminal window
+# cd to ratchat directory
+# python receive_sms.py
 
 app = Flask(__name__)
 counter = 0
