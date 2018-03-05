@@ -27,6 +27,8 @@ except mysql.connector.Error as e:
     else:
         print e
 
+cursor = link.cursor()
+
 # open a terminal window
 # cd to ratchat directory
 # ./ngrok http 5000
@@ -41,9 +43,7 @@ currCase = 0
 dict_alive = {"1": "Dead", "2": "Alive"}
 dict_location = {"1": "Inside", "2": "Outside"}
 dict_evidence = {"1": "Rat Droppings", "2":"Chewed boxes or food"}
-# workbook = xlsxwriter.Workbook('test_data.xlsx')
-# worksheet = workbook.add_worksheet()
-# row_counter = 1
+
 
 @app.route("/", methods=['GET', 'POST'])
 def sms_reply():
@@ -52,6 +52,11 @@ def sms_reply():
     global dict_alive
     global dict_evidence
     global dict_location
+
+    #global var for db
+    global saw_is_outside
+    global saw_is_alive
+    global saw_location
 
     response = MessagingResponse()
     message = Message()
@@ -95,23 +100,40 @@ def sms_reply():
         if (counter == 1):
             message.body("Where did you see the rat? \n 1. Inside \n 2.Outside \n Type '1' or '2'")
             counter = counter + 1
+            print ("nancytest, should be case1: " + userInput)
 
         elif (counter == 2 and (userInput == "1" or userInput == "2")):
             message.body("Was the rat dead or alive? \n 1. Dead \n 2. Alive \n Type '1' or '2'")
             counter = counter + 1
 
             #response for rat sighting: "was the rat inside or outside?"
-            print (dict_location[userInput])
+            print ("nancytest, should be inside/outside: " + dict_location[userInput])
+
+            if userInput == '1':
+                saw_is_outside = False
+            elif userInput == '2':
+                saw_is_outside = True
 
         elif (counter == 3 and (userInput == "1" or userInput == "2")):
             message.body("Please give us a location. Type the Street Name. For example 'Main Street'")
             counter = counter + 1
 
             #resonse for rat sighting: "was the rat dead or alive?"
-            print (dict_alive[userInput])
+            print ("nancytest, should be alive/dead: " + dict_alive[userInput])
+
+            if userInput == '1':
+                saw_is_alive = False
+            elif userInput == '2':
+                saw_is_alive = True
 
         elif (counter == 4):
             message.body("Thank you for your response!")
+            saw_location = userInput
+
+            addSawRat = "INSERT INTO ratsite (`is_outside`, `is_alive`, `location`) VALUES (%s, %s, %s)"
+            cursor.execute(addSawRat,(saw_is_outside, saw_is_alive, saw_location))
+            link.commit()
+
             #resetting the counters, back to case 0
             case = 0
             counter = 0
