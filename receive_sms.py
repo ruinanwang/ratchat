@@ -11,6 +11,29 @@ from twilio.twiml.messaging_response import Body, Media, Message, MessagingRespo
 # cd to ratchat directory
 # python receive_sms.py
 
+#connect to db
+try:
+
+    config = {
+        'user': 'root',
+        'password': 'root',
+        'unix_socket': '/Applications/MAMP/tmp/mysql/mysql.sock',
+        'database': 'ratchatdb',
+        'raise_on_warnings': True,
+    }
+
+    link = mysql.connector.connect(**config)
+    print "ratchatdb databse connected"
+
+except mysql.connector.Error as e:
+    if e.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+        print "db access denied"
+    elif e.errno == errorcode.ER_BAD_DB_ERROR:
+        print "database does not exist"
+    else:
+        print e
+
+
 app = Flask(__name__)
 counter = 0
 currCase = 0
@@ -134,128 +157,6 @@ def sms_reply():
             message.body("Thank you for your interest in rat prevention. Please follow this link for more info: linkhere")
             counter = 0
             case = 0
-
-
-    # OLD CODE
-    # # ------------ CASE 1, Thank you response --------------------------
-    # if (currCase == 1 and counter == 4):
-    #     message.body("Thank you for your response!")
-    #
-    #     #resetting the counters, back to case 0
-    #     currCase = 0
-    #     counter = 0
-    #     userInput = 0
-    #
-    #
-    # # ----------- CASE 1, rat sighting: Location/Address ---------------------
-    # if (currCase == 1 and (userInput == "1" or userInput == "2") and counter == 3):
-    #     message.body("Please give us a location. Type the Street Name. For example 'Main Street'")
-    #     counter = counter + 1
-    #
-    #     #resonse for rat sighting: "was the rat inside or outside?"
-    #     print (dict_alive[userInput])
-    #
-    #
-    #     #print (userInput)
-    #     #print (currCase)
-    #     #print (counter)
-    #
-    # # ---------- CASE 2, Thank you response --------------------------------
-    # elif (currCase == 2 and counter == 3):
-    #     message.body("Thank you for your response!")
-    #
-    #     #resetting counters, back to case 0
-    #     currCase = 0
-    #     counter = 0
-    #     userInput = 0
-    #
-    # # ------------ CASE 3, ERROR --------------------------------------------
-    # elif (counter == 3):
-    #     message.body("Sorry looks like there was an error. Please enter only the numbers provided as an option.\n Type 'RAT' to return to the main menu!")
-    #
-    #     #TODO change error type to go back one step not back to beginning
-    #     #resets counters to case 0
-    #     userInput = 0
-    #     counter = 0
-    #     currCase = 0
-    #
-    # # ------------- CASE 1, rat sighting: dead/alive ----------------------
-    # if (currCase == 1 and counter == 2 and (userInput == "1" or userInput == "2")):
-    #     message.body("Was the rat dead or alive? \n 1. Dead \n 2. Alive \n Type '1' or '2'")
-    #     counter = counter + 1
-    #
-    #     #response for rat sighting: "was the rat inside or outside?"
-    #     print (dict_location[userInput])
-    #
-    #     #print (userInput)
-    #     #print (counter)
-    #     #print (currCase)
-    #
-    # # ------------ CASE 2, rat evidence: location/address ----------------------
-    # elif (currCase == 2 and (userInput == "1" or userInput == "2") and counter == 2):
-    #     message.body("Please give us a location. Type the Street Name. For example 'Main Street'")
-    #     counter = counter + 1
-    #
-    #     #response for rat evidence: "what type of evidence?"
-    #     print (dict_evidence[userInput])
-    #
-    #     #print (counter)
-    #     #print (currCase)
-    #
-    # # ------------ CASE 2, ERROR ----------------------------------------------
-    # elif (counter == 2):
-    #     message.body("Sorry looks like there was an error. Please enter only the numbers provided as an option.\n Type 'RAT' to return to the main menu!")
-    #
-    #     #reset counters to case 0
-    #     userInput = 0
-    #     counter = 0
-    #     currCase = 0
-    #
-    #
-    # # ----------------- CASE 1, rat sighting: location -------------------
-    # if (userInput == "1" and counter == 1):
-    #     message.body("Where did you see the rat? \n 1. Inside \n 2.Outside \n Type '1' or '2'")
-    #     counter = counter + 1
-    #     currCase = 1
-    #
-    #     #print (userInput)
-    #     #print (counter)
-    #     #print (currCase)
-    #
-    #
-    # # ---------------- CASE 2, rat evidence: type of evidence -------------
-    # elif (userInput == "2" and counter == 1):
-    #     message.body("Please categorize your evidence:\n 1.Rat Droppings\n 2.Chewed boxes or food \n Type '1' or '2'")
-    #     counter = counter + 1
-    #     currCase = 2
-    #
-    #     #print (userInput)
-    #     #print (counter)
-    #     #print (currCase)
-    #
-    #
-    # # -------------- CASE 3, rat prevention ------------------------------
-    # elif (userInput == "3" and counter == 1):
-    #     message.body("Thank you for your interest in rat prevention. Please follow this link for more info: linkhere")
-    #     counter = 0
-    #     currCase = 0
-    #
-    #     #print (userInput)
-    #     #print (counter)
-    #     #print (currCase)
-    #
-    #
-    # # ---------- ERROR ---------------------------
-    # elif(counter == 1):
-    #     message.body("Sorry looks like there was an error. Please enter only the numbers provided as an option.\n Type 'RAT' to return to the main menu!")
-    #
-    #     #reset to case 0
-    #     userInput = 0
-    #     counter = 0
-    #     currCase = 0
-
-
-
 
     response.append(message)
     return str(response)
