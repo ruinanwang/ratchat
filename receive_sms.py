@@ -58,6 +58,11 @@ def sms_reply():
     global saw_is_alive
     global saw_location
 
+    #global var for db evidence of rat
+    global evid_droppings
+    global evid_chewed
+    global evid_location
+
     response = MessagingResponse()
     message = Message()
     userInput = request.values.get("Body", None)
@@ -163,6 +168,10 @@ def sms_reply():
             #resetting counters, back to case 0
             case = 0
             counter = 0
+
+            addSawEvidence = "INSERT INTO ratevidence (`droppings`, `chewed`, `location`) VALUES (%s, %s, %s)"
+            cursor.execute(addSawEvidence,(evid_droppings, evid_chewed, evid_location))
+            link.commit()
 
 
         else:
