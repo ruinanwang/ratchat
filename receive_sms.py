@@ -39,7 +39,7 @@ cursor = link.cursor()
 
 app = Flask(__name__)
 counter = 0
-currCase = 0
+case = 0
 dict_alive = {"1": "Dead", "2": "Alive"}
 dict_location = {"1": "Inside", "2": "Outside"}
 dict_evidence = {"1": "Rat Droppings", "2":"Chewed boxes or food"}
@@ -89,10 +89,10 @@ def sms_reply():
     elif (counter == 1):
         message.body("Sorry looks like there was an error."
         + " Please enter only the numbers provided as an option."
-        + "\n Type 'RAT' to return to the main menu!")
+        + "\n Type '1' '2' or '3'")
         #reset counters, back to case 0
-        counter = 0
-        case = 0
+        # counter = 0
+        # case = 0
 
 
     #-------------------- CASE LOGIC -----------------------------
@@ -141,7 +141,7 @@ def sms_reply():
         else:
             #---------ERROR--------------
             message.body("Sorry looks like there was an error. Please enter only the numbers provided as an option."
-            + "\n Type 'RAT' to return to the main menu!")
+            + "\n Type '1' or '2'")
             #reset counters, back to case 0
             counter = 0
             case = 0
@@ -168,10 +168,10 @@ def sms_reply():
         else:
             #-----------ERROR------------
             message.body("Sorry looks like there was an error. Please enter only the numbers provided as an option."
-            + "\n Type 'RAT' to return to the main menu!")
+            + "\n Type '1' or '2'")
             #reset counters, back to case 0
-            counter = 0
-            case = 0
+            # counter = 0
+            # case = 0
 
     elif (case == 3):
         if (counter == 1):
