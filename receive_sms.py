@@ -163,8 +163,18 @@ def sms_reply():
             #response for rat evidence: "what type of evidence?"
             print (dict_evidence[userInput])
 
+            if userInput == '1':
+                evid_droppings = True
+                evid_chewed = False
+            elif userInput == '2':
+                evid_chewed = True
+                evid_droppings = False
+
+
         elif (counter == 3):
             message.body("Thank you for your response!")
+            evid_location = userInput
+
             #resetting counters, back to case 0
             case = 0
             counter = 0
