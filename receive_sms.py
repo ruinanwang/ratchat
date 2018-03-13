@@ -39,7 +39,7 @@ cursor = link.cursor()
 
 app = Flask(__name__)
 counter = 0
-currCase = 0
+case = 0
 dict_alive = {"1": "Dead", "2": "Alive"}
 dict_location = {"1": "Inside", "2": "Outside"}
 dict_evidence = {"1": "Rat Droppings", "2":"Chewed boxes or food"}
@@ -57,6 +57,11 @@ def sms_reply():
     global saw_is_outside
     global saw_is_alive
     global saw_location
+
+    #global var for db evidence of rat
+    global evid_droppings
+    global evid_chewed
+    global evid_location
 
     response = MessagingResponse()
     message = Message()
@@ -89,10 +94,10 @@ def sms_reply():
     elif (counter == 1):
         message.body("Sorry looks like there was an error."
         + " Please enter only the numbers provided as an option."
-        + "\n Type 'RAT' to return to the main menu!")
+        + "\n Type '1' '2' or '3'")
         #reset counters, back to case 0
-        counter = 0
-        case = 0
+        # counter = 0
+        # case = 0
 
 
     #-------------------- CASE LOGIC -----------------------------
@@ -141,7 +146,7 @@ def sms_reply():
         else:
             #---------ERROR--------------
             message.body("Sorry looks like there was an error. Please enter only the numbers provided as an option."
-            + "\n Type 'RAT' to return to the main menu!")
+            + "\n Type '1' or '2'")
             #reset counters, back to case 0
             counter = 0
             case = 0
@@ -158,20 +163,34 @@ def sms_reply():
             #response for rat evidence: "what type of evidence?"
             print (dict_evidence[userInput])
 
+            if userInput == '1':
+                evid_droppings = True
+                evid_chewed = False
+            elif userInput == '2':
+                evid_chewed = True
+                evid_droppings = False
+
+
         elif (counter == 3):
             message.body("Thank you for your response!")
+            evid_location = userInput
+
             #resetting counters, back to case 0
             case = 0
             counter = 0
+
+            addSawEvidence = "INSERT INTO ratevidence (`droppings`, `chewed`, `location`) VALUES (%s, %s, %s)"
+            cursor.execute(addSawEvidence,(evid_droppings, evid_chewed, evid_location))
+            link.commit()
 
 
         else:
             #-----------ERROR------------
             message.body("Sorry looks like there was an error. Please enter only the numbers provided as an option."
-            + "\n Type 'RAT' to return to the main menu!")
+            + "\n Type '1' or '2'")
             #reset counters, back to case 0
-            counter = 0
-            case = 0
+            # counter = 0
+            # case = 0
 
     elif (case == 3):
         if (counter == 1):
