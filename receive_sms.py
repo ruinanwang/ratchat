@@ -3,31 +3,31 @@ import os
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 import xlsxwriter
 
-import mysql.connector
-from mysql.connector import errorcode
+#import mysql.connector
+#from mysql.connector import errorcode
 
-try:
-
-    config = {
-        'user': 'root',
-        'password': 'root',
-        'unix_socket': '/Applications/MAMP/tmp/mysql/mysql.sock',
-        'database': 'ratchatdb',
-        'raise_on_warnings': True,
-    }
-
-    link = mysql.connector.connect(**config)
-    print "ratchatdb databse connected"
-
-except mysql.connector.Error as e:
-    if e.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-        print "db access denied"
-    elif e.errno == errorcode.ER_BAD_DB_ERROR:
-        print "database does not exist"
-    else:
-        print e
-
-cursor = link.cursor()
+# try:
+#
+#     config = {
+#         'user': 'root',
+#         'password': 'root',
+#         'unix_socket': '/Applications/MAMP/tmp/mysql/mysql.sock',
+#         'database': 'ratchatdb',
+#         'raise_on_warnings': True,
+#     }
+#
+#     link = mysql.connector.connect(**config)
+#     print "ratchatdb databse connected"
+#
+# except mysql.connector.Error as e:
+#     if e.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+#         print "db access denied"
+#     elif e.errno == errorcode.ER_BAD_DB_ERROR:
+#         print "database does not exist"
+#     else:
+#         print e
+#
+# cursor = link.cursor()
 
 # open a terminal window
 # cd to ratchat directory
@@ -132,12 +132,20 @@ def sms_reply():
                 saw_is_alive = True
 
         elif (counter == 4):
+            message.body("Please type the City. For example 'Atlanta'")
+            counter = counter + 1
+
+        elif (counter == 5):
+            message.body("Please type the Zipcode. For example '30332'")
+            counter = counter + 1
+
+        elif (counter == 6):
             message.body("Thank you for your response!")
             saw_location = userInput
 
-            addSawRat = "INSERT INTO ratsite (`is_outside`, `is_alive`, `location`) VALUES (%s, %s, %s)"
-            cursor.execute(addSawRat,(saw_is_outside, saw_is_alive, saw_location))
-            link.commit()
+            # addSawRat = "INSERT INTO ratsite (`is_outside`, `is_alive`, `location`) VALUES (%s, %s, %s)"
+            # cursor.execute(addSawRat,(saw_is_outside, saw_is_alive, saw_location))
+            # link.commit()
 
             #resetting the counters, back to case 0
             case = 0
@@ -148,8 +156,7 @@ def sms_reply():
             message.body("Sorry looks like there was an error. Please enter only the numbers provided as an option."
             + "\n Type '1' or '2'")
             #reset counters, back to case 0
-            counter = 0
-            case = 0
+
 
     elif (case == 2):
         if (counter == 1):
@@ -164,14 +171,22 @@ def sms_reply():
             print (dict_evidence[userInput])
 
         elif (counter == 3):
+            message.body("Please type the City. For example 'Atlanta'")
+            counter = counter + 1
+
+        elif (counter == 4):
+            message.body("Please type the Zipcode. For example '30332'")
+            counter = counter + 1
+            
+        elif (counter == 5):
             message.body("Thank you for your response!")
             #resetting counters, back to case 0
             case = 0
             counter = 0
 
-            addSawEvidence = "INSERT INTO ratevidence (`droppings`, `chewed`, `location`) VALUES (%s, %s, %s)"
-            cursor.execute(addSawEvidence,(evid_droppings, evid_chewed, evid_location))
-            link.commit()
+            # addSawEvidence = "INSERT INTO ratevidence (`droppings`, `chewed`, `location`) VALUES (%s, %s, %s)"
+            # cursor.execute(addSawEvidence,(evid_droppings, evid_chewed, evid_location))
+            # link.commit()
 
 
         else:
