@@ -1,5 +1,11 @@
 # RatWatch
 
+### What is RatWatch
+
+RatWatch is the text bot that we have developed for members in the community to report real time rat sightings. RatWatch walks the user through a series of questions, collecting vital information which can be presented to the community and community officials. 
+
+RatWatch is built using Python and the Twilio API. MySQL is used for database data storage.
+
 ### How to run RatWatch
 
 1. Clone this repository
