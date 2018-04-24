@@ -3,31 +3,31 @@ import os
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 import xlsxwriter
 
-#import mysql.connector
-#from mysql.connector import errorcode
+import mysql.connector
+from mysql.connector import errorcode
 
-# try:
-#
-#     config = {
-#         'user': 'root',
-#         'password': 'root',
-#         'unix_socket': '/Applications/MAMP/tmp/mysql/mysql.sock',
-#         'database': 'ratchatdb',
-#         'raise_on_warnings': True,
-#     }
-#
-#     link = mysql.connector.connect(**config)
-#     print "ratchatdb databse connected"
-#
-# except mysql.connector.Error as e:
-#     if e.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-#         print "db access denied"
-#     elif e.errno == errorcode.ER_BAD_DB_ERROR:
-#         print "database does not exist"
-#     else:
-#         print e
-#
-# cursor = link.cursor()
+try:
+
+    config = {
+        'user': 'root',
+        'password': 'root',
+        'unix_socket': '/Applications/MAMP/tmp/mysql/mysql.sock',
+        'database': 'ratchatdb',
+        'raise_on_warnings': True,
+    }
+
+    link = mysql.connector.connect(**config)
+    print "ratchatdb databse connected"
+
+except mysql.connector.Error as e:
+    if e.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+        print "db access denied"
+    elif e.errno == errorcode.ER_BAD_DB_ERROR:
+        print "database does not exist"
+    else:
+        print e
+
+cursor = link.cursor()
 
 # open a terminal window
 # cd to ratchat directory
@@ -56,12 +56,16 @@ def sms_reply():
     #global var for db
     global saw_is_outside
     global saw_is_alive
-    global saw_location
+    global saw_street
+    global saw_city
+    global saw_zipcode
 
     #global var for db evidence of rat
     global evid_droppings
     global evid_chewed
-    global evid_location
+    global evid_street
+    global evid_city
+    global evid_zipcode
 
     response = MessagingResponse()
     message = Message()
@@ -135,17 +139,21 @@ def sms_reply():
             message.body("Please type the City. For example 'Atlanta'")
             counter = counter + 1
 
+            saw_street = userInput
+
         elif (counter == 5):
             message.body("Please type the Zipcode. For example '30332'")
             counter = counter + 1
 
+            saw_city = userInput
+
         elif (counter == 6):
             message.body("Thank you for your response!")
-            saw_location = userInput
+            saw_zipcode = userInput
 
-            # addSawRat = "INSERT INTO ratsite (`is_outside`, `is_alive`, `location`) VALUES (%s, %s, %s)"
-            # cursor.execute(addSawRat,(saw_is_outside, saw_is_alive, saw_location))
-            # link.commit()
+            addSawRat = "INSERT INTO ratsite (`is_outside`, `is_alive`, `street`, `city`, `zipcode`) VALUES (%s, %s, %s, %s, %s)"
+            cursor.execute(addSawRat,(saw_is_outside, saw_is_alive, saw_street, saw_city, saw_zipcode))
+            link.commit()
 
             #resetting the counters, back to case 0
             case = 0
@@ -182,21 +190,26 @@ def sms_reply():
             message.body("Please type the City. For example 'Atlanta'")
             counter = counter + 1
 
+            evid_street = userInput
+
         elif (counter == 4):
             message.body("Please type the Zipcode. For example '30332'")
             counter = counter + 1
+
+            evid_city = userInput
             
         elif (counter == 5):
             message.body("Thank you for your response!")
-            evid_location = userInput
+
+            evid_zipcode = userInput
 
             #resetting counters, back to case 0
             case = 0
             counter = 0
 
-            # addSawEvidence = "INSERT INTO ratevidence (`droppings`, `chewed`, `location`) VALUES (%s, %s, %s)"
-            # cursor.execute(addSawEvidence,(evid_droppings, evid_chewed, evid_location))
-            # link.commit()
+            addSawEvidence = "INSERT INTO ratevidence (`droppings`, `chewed`, `street`, `city`, `zipcode`) VALUES (%s, %s, %s, %s, %s)"
+            cursor.execute(addSawEvidence,(evid_droppings, evid_chewed, evid_street, evid_city, evid_zipcode))
+            link.commit()
 
 
         else:
