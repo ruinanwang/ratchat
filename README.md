@@ -9,7 +9,9 @@ RatWatch is built using Python and the Twilio API. MySQL is used for database da
 ### How to run RatWatch
 
 1. Clone this repository
-Note: For Georgia Tech Civic Data and Design VIP students, please skip step 2 and 3. We already have a payed Twilio account set up for you. Just login and continue with the setup process. Please test if step 4 is needed, you might also be able to skip this step.
+
+Note: For Georgia Tech Civic Data and Design VIP students, please skip step 2 and 3. We already have a payed Twilio account set up for you. Just login and continue with the setup process. Please test if step 4 is needed, you might also be able to skip this step and go on to step 5.
+
 2. Go to the [Twilio website here](http://www.twilio.com) and make an account
 3. Get a phone number as the auto-reply number. The free Twilio trial gives you a phone number to use for a couple of months
 4. Go to Twilio phone numbers – verified caller IDs, add the phone number you are testing with. This could be your own phone number. Payed twilio account does not require this step.
@@ -20,5 +22,7 @@ Note: For Georgia Tech Civic Data and Design VIP students, please skip step 2 an
 9. Database create table code is in the sql directory
 10. Make sure you make adjustments to the code so that your code is successfully connected to the database.
 11. `python receive_sms.py`
+
 Note: may have to pip install dependencies during this process
+
 12. Your SMS APP should be working now! Have fun gathering data!
