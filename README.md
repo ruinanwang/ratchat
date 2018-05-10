@@ -9,7 +9,8 @@ RatWatch is built using Python and the Twilio API. MySQL is used for database da
 ### How to run RatWatch
 
 1. Clone this repository
-2. Go to the [Twilio website here](http://www.twilio.com) and make an account, or login if you already have an account
+Note: For Georgia Tech Civic Data and Design VIP students, please skip step 2 and 3. We already have a payed Twilio account set up for you. Just login and continue with the setup process. Please test if step 4 is needed, you might also be able to skip this step.
+2. Go to the [Twilio website here](http://www.twilio.com) and make an account
 3. Get a phone number as the auto-reply number. The free Twilio trial gives you a phone number to use for a couple of months
 4. Go to Twilio phone numbers – verified caller IDs, add the phone number you are testing with. This could be your own phone number. Payed twilio account does not require this step.
 5. Open terminal, cd to rat-chat directory, type `./ngrok http 5000`
