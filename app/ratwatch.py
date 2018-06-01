@@ -1,71 +1,60 @@
-from flask import Flask, request, redirect
-import os
-from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
-import xlsxwriter
 
+# ratwatch.py: 
+# Flask app that interfaces with the Twilio API to create
+# an SMS survey for people to report rat sitings or evidence
+# in the city of Atlanta. The app also stores user responses
+# into a MySQL database for analysis.
+
+import os
 import mysql.connector
 from mysql.connector import errorcode
+from flask import Flask, request
+from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 
-try:
+# Establishes a connection with database. Includes
+# dictionary with credentials and an exception
+# handler in case the connection is unsuccessful.
+# Returns cursor for executing statements on the
+# database if connection is successful.
+def connect_to_database():
+    try:
+        databaseCredentials = {
+            'user': 'root',
+            'password': 'root',
+            'unix_socket': '/Applications/MAMP/tmp/mysql/mysql.sock',
+            'database': 'ratwatch_db',
+            'raise_on_warnings': True,
+        }
+        link = mysql.connector.connect(**databaseCredentials)
+        cursor = link.cursor()
+        return(cursor)
+    except mysql.connector.Error:
+        raise
 
-    config = {
-        'user': 'root',
-        'password': 'root',
-        'unix_socket': '/Applications/MAMP/tmp/mysql/mysql.sock',
-        'database': 'ratchatdb',
-        'raise_on_warnings': True,
-    }
-
-    link = mysql.connector.connect(**config)
-    print "ratchatdb databse connected"
-
-except mysql.connector.Error as e:
-    if e.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-        print "db access denied"
-    elif e.errno == errorcode.ER_BAD_DB_ERROR:
-        print "database does not exist"
-    else:
-        print e
-
-cursor = link.cursor()
-
-# open a terminal window
-# cd to ratchat directory
-# ./ngrok http 5000
-# copy webhook url
-# open second terminal window
-# cd to ratchat directory
-# python receive_sms.py
-
+cursor = connect_to_database()
 app = Flask(__name__)
-counter = 0
-case = 0
-dict_alive = {"1": "Dead", "2": "Alive"}
-dict_location = {"1": "Inside", "2": "Outside"}
-dict_evidence = {"1": "Rat Droppings", "2":"Chewed boxes or food"}
-
 
 @app.route("/", methods=['GET', 'POST'])
-def sms_reply():
-    global counter
-    global case
-    global dict_alive
-    global dict_evidence
-    global dict_location
+def start_bot():
+    case = 0
+    counter = 0
+    dead_alive_options = {"1": "Dead", "2": "Alive"}
+    location_options = {"1": "Inside", "2": "Outside"}
+    evidence_options = {"1": "Rat droppings", "2":"Chewed boxes or food"}
 
     #global var for db
-    global saw_is_outside
-    global saw_is_alive
-    global saw_street
-    global saw_city
-    global saw_zipcode
+    site_is_outside
+    saw_is_alive
+    saw_street
+    saw_city
+    saw_zipcode
 
     #global var for db evidence of rat
-    global evid_droppings
-    global evid_chewed
-    global evid_street
-    global evid_city
-    global evid_zipcode
+    evid_droppings
+    evid_chewed
+    evid_street
+    evid_city
+    evid_zipcode
 
     response = MessagingResponse()
     message = Message()
@@ -102,7 +91,6 @@ def sms_reply():
         #reset counters, back to case 0
         # counter = 0
         # case = 0
-
 
     #-------------------- CASE LOGIC -----------------------------
     if (case == 1):
@@ -165,7 +153,6 @@ def sms_reply():
             + "\n Type '1' or '2'")
             #reset counters, back to case 0
 
-
     elif (case == 2):
         if (counter == 1):
             message.body("Please categorize your evidence:\n 1.Rat Droppings\n 2.Chewed boxes or food \n Type '1' or '2'")
@@ -184,7 +171,6 @@ def sms_reply():
             elif userInput == '2':
                 evid_chewed = True
                 evid_droppings = False
-
 
         elif (counter == 3):
             message.body("Please type the City. For example 'Atlanta'")
@@ -210,7 +196,6 @@ def sms_reply():
             addSawEvidence = "INSERT INTO ratevidence (`droppings`, `chewed`, `street`, `city`, `zipcode`) VALUES (%s, %s, %s, %s, %s)"
             cursor.execute(addSawEvidence,(evid_droppings, evid_chewed, evid_street, evid_city, evid_zipcode))
             link.commit()
-
 
         else:
             #-----------ERROR------------

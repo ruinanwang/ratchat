@@ -1,17 +1,17 @@
 
 /* DATABASE FILE
-  This file automatically creates the 'ratchatdb' 
+  This file automatically creates the 'ratwatch_db' 
   database, along with its associated tables.
   - Michael Koohang 
 */
 
 /* DATABASE CREATION
-  Creates the 'ratchat' database and makes
+  Creates the 'ratwatch_db' database and makes
   it the active database.
   - Michael Koohang
 */
-CREATE DATABASE IF NOT EXISTS `ratchat_db`;
-USE `ratchat_db`;
+CREATE DATABASE IF NOT EXISTS `ratwatch_db`;
+USE `ratwatch_db`;
 
 /* TABLE CREATION - ratevidence
   Creates the 'ratevidence' table and
