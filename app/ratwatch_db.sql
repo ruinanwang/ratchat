@@ -27,6 +27,7 @@ CREATE TABLE `ratevidence` (
   `street` varchar(255) NOT NULL,
   `city` varchar(255) NOT NULL,
   `zipcode` varchar(255) NOT NULL,
+  `image` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -44,6 +45,7 @@ CREATE TABLE `ratsite` (
   `street` varchar(255) NOT NULL,
   `city` varchar(255) NOT NULL,
   `zipcode` varchar(255) NOT NULL,
+  `image` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
