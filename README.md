@@ -2,9 +2,9 @@
 
 ### What is RatWatch?
 
-RatWatch is the text bot that we have developed for members in the community to report real time rat sightings. RatWatch walks the user through a series of questions, collecting vital information which can be presented to the community and community officials. 
+RatWatch is an SMS chatbot designed for members in the Atlanta community to report real-time rat sightings. RatWatch walks the user through a series of questions, collecting vital information which can be presented to the community and city officials. 
 
-RatWatch is built using Python and the Twilio API. MySQL is used for database data storage.
+RatWatch is built using Python and Twilio. MySQL is used for database storage.
 
 ### How to run RatWatch
 

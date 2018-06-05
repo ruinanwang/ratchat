@@ -4,217 +4,248 @@
 # an SMS survey for people to report rat sitings or evidence
 # in the city of Atlanta. The app also stores user responses
 # into a MySQL database for analysis.
+# - Michael Koohang
 
 import os
 import mysql.connector
 from mysql.connector import errorcode
-from flask import Flask, request
+from flask import Flask, request, session
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 
-# Establishes a connection with database. Includes
-# dictionary with credentials and an exception
+# Function that establishes a connection with database. 
+# Includes dictionary with credentials and an exception
 # handler in case the connection is unsuccessful.
 # Returns cursor for executing statements on the
 # database if connection is successful.
-def connect_to_database():
-    try:
-        databaseCredentials = {
-            'user': 'root',
-            'password': 'root',
-            'unix_socket': '/Applications/MAMP/tmp/mysql/mysql.sock',
-            'database': 'ratwatch_db',
-            'raise_on_warnings': True,
-        }
-        link = mysql.connector.connect(**databaseCredentials)
-        cursor = link.cursor()
-        return(cursor)
-    except mysql.connector.Error:
-        raise
+# - Michael Koohang
+try:
+    databaseCredentials = {
+        'user': 'root',
+        'password': 'root',
+        'unix_socket': '/Applications/MAMP/tmp/mysql/mysql.sock',
+        'database': 'ratwatch_db',
+        'raise_on_warnings': True,
+    }
+    link = mysql.connector.connect(**databaseCredentials)
+    cursor = link.cursor()
+except mysql.connector.Error:
+    raise
 
-cursor = connect_to_database()
+# Initiates connection with the database and 
+# starts the application.
+# - Michael Koohang
+SECRET_KEY = 'al;kasd7jkhdtr4576576lkjasrt'
 app = Flask(__name__)
+app.config.from_object(__name__)
 
-@app.route("/", methods=['GET', 'POST'])
-def start_bot():
-    case = 0
-    counter = 0
-    dead_alive_options = {"1": "Dead", "2": "Alive"}
-    location_options = {"1": "Inside", "2": "Outside"}
-    evidence_options = {"1": "Rat droppings", "2":"Chewed boxes or food"}
-
-    #global var for db
-    site_is_outside
-    saw_is_alive
-    saw_street
-    saw_city
-    saw_zipcode
-
-    #global var for db evidence of rat
-    evid_droppings
-    evid_chewed
-    evid_street
-    evid_city
-    evid_zipcode
+# Function that executes when the user
+# texts the phone number and the Twilio
+# API is activated.
+# - Michael Koohang
+@app.route("/sms", methods=['GET', 'POST'])
+def process_message():
 
     response = MessagingResponse()
     message = Message()
     userInput = request.values.get("Body", None)
+    counter = session.get('counter', 0)
+    case = session.get('case', 0)
 
-    #prints what Twilio user texts the bot. Runs each time the user texts.
+    # Prints what the user texts the chatbot. It runs each 
+    # time the user sends a message.
+    # - Michael Koohang
     print(userInput)
 
-    # ---------- CASE 0: BASE CASE ---------------------------
-    # ---------- counter: 0 ---------------
-    # ---------- case: 0 -----------------
+    # Case 0 - Start
+    # - Michael Koohang
     if (counter == 0):
-        message.body("Hello! Please reply with one of the following numbers:"
+        message.body("Welcome to RatWatch! Please reply with one of the following numbers:"
         + "\n 1. I saw a rat \n 2. I saw evidence of a rat"
         + "\n 3. I want to prevent rats \n Type '1' or '2' or '3'")
-        counter = counter + 1
+        counter += 1
+        session['counter'] = counter
         response.append(message)
         return str(response)
 
-        #print (counter)
-        #print (userInput)
-        #print (currCase)
-    #------------------- SET CASES --------------------------------
-    if (userInput == "1" and counter == 1):
-        case = 1
-    elif (userInput == "2" and counter == 1):
-        case = 2
-    elif (userInput == "3" and counter == 1):
-        case = 3
-    elif (counter == 1):
-        message.body("Sorry looks like there was an error."
-        + " Please enter only the numbers provided as an option."
-        + "\n Type '1' '2' or '3'")
-        #reset counters, back to case 0
-        # counter = 0
-        # case = 0
+    # Determines which option the user selected and sets
+    # the current case based on that.
+    # - Michael Koohang
+    if (not case):
+        if (userInput == "1" and counter == 1):
+            session['case'] = 1
+            case = session.get('case', 0)
+        elif (userInput == "2" and counter == 1):
+            session['case'] = 2
+            case = session.get('case', 0)
+        elif (userInput == "3" and counter == 1):
+            session['case'] = 3
+            case = session.get('case', 0)
+        else:
+            message.body("Your input was incorrect. \nPlease try again. \n\n"
+            + "Please reply with one of the following numbers:"
+            + "\n 1. I saw a rat \n 2. I saw evidence of a rat"
+            + "\n 3. I want to prevent rats \n Type '1' or '2' or '3'")
 
-    #-------------------- CASE LOGIC -----------------------------
+    # Decision tree that carries out the appropriate 
+    # logic based on the case and the counter.
+    # - Michael Koohang
     if (case == 1):
         if (counter == 1):
-            message.body("Where did you see the rat? \n 1. Inside \n 2.Outside \n Type '1' or '2'")
-            counter = counter + 1
-            print ("nancytest, should be case1: " + userInput)
-
-        elif (counter == 2 and (userInput == "1" or userInput == "2")):
-            message.body("Was the rat dead or alive? \n 1. Dead \n 2. Alive \n Type '1' or '2'")
-            counter = counter + 1
-
-            #response for rat sighting: "was the rat inside or outside?"
-            print ("nancytest, should be inside/outside: " + dict_location[userInput])
-
-            if userInput == '1':
-                saw_is_outside = False
-            elif userInput == '2':
-                saw_is_outside = True
-
-        elif (counter == 3 and (userInput == "1" or userInput == "2")):
-            message.body("Please give us a location. Type the Street Name. For example 'Main Street'")
-            counter = counter + 1
-
-            #resonse for rat sighting: "was the rat dead or alive?"
-            print ("nancytest, should be alive/dead: " + dict_alive[userInput])
-
-            if userInput == '1':
-                saw_is_alive = False
-            elif userInput == '2':
-                saw_is_alive = True
-
+            message.body("Where did you see the rat?. Type the street name. For example '120 Main Street'")
+            counter += 1         
+            session['counter'] = counter
+        elif (counter == 2):
+            if (userInput.replace(' ','').isalnum()):
+                session['site_street'] = userInput
+                message.body("Please type the City. For example 'Atlanta'")
+                counter += 1         
+                session['counter'] = counter
+            else:
+                message.body("Your input was incorrect. \nPlease try again. \n\n"
+                + "Where did you see the rat?. Type the street name. For example '120 Main Street'")
+        elif (counter == 3):
+            if (userInput.isalpha()):
+                session['site_city'] = userInput
+                message.body("Please type the Zipcode. For example '30332'")
+                counter += 1         
+                session['counter'] = counter
+            else:
+                message.body("Your input was incorrect. \nPlease try again. \n\n"
+                + "Please type the City. For example 'Atlanta'")
         elif (counter == 4):
-            message.body("Please type the City. For example 'Atlanta'")
-            counter = counter + 1
-
-            saw_street = userInput
-
+            try:
+                userInput = int(userInput)
+                session['site_zipcode'] = userInput
+                message.body("Where did you see the rat? \n 1. Inside \n 2.Outside \n Type '1' or '2'")
+                counter += 1         
+                session['counter'] = counter
+            except:
+                message.body("Your input was incorrect. \nPlease try again. \n\n"
+                + "Please type the Zipcode. For example '30332'")
         elif (counter == 5):
-            message.body("Please type the Zipcode. For example '30332'")
-            counter = counter + 1
-
-            saw_city = userInput
-
+            if userInput == '1':
+                session['site_is_outside'] = False
+                message.body("Was the rat dead or alive? \n 1. Dead \n 2. Alive \n Type '1' or '2'")
+                counter += 1         
+                session['counter'] = counter
+            elif userInput == '2':
+                session['site_is_outside'] = True
+                message.body("Was the rat dead or alive? \n 1. Dead \n 2. Alive \n Type '1' or '2'")
+                counter += 1         
+                session['counter'] = counter
+            else:
+                message.body("Your input was incorrect. \nPlease try again. \n\n"
+                + "Where did you see the rat? \n 1. Inside \n 2.Outside \n Type '1' or '2'")
         elif (counter == 6):
-            message.body("Thank you for your response!")
-            saw_zipcode = userInput
+            if userInput == '1':
+                session['site_is_alive'] = False
+                site_is_outside = session.get('site_is_outside', 0)
+                site_is_alive = session.get('site_is_alive', 0)
+                site_street = session.get('site_street', 0)
+                site_city = session.get('site_city', 0)
+                site_zipcode = session.get('site_zipcode', 0)
 
-            addSawRat = "INSERT INTO ratsite (`is_outside`, `is_alive`, `street`, `city`, `zipcode`) VALUES (%s, %s, %s, %s, %s)"
-            cursor.execute(addSawRat,(saw_is_outside, saw_is_alive, saw_street, saw_city, saw_zipcode))
-            link.commit()
+                addSite = "INSERT INTO ratsite (`is_outside`, `is_alive`, `street`, `city`, `zipcode`) VALUES (%s, %s, %s, %s, %s)"
+                cursor.execute(addSite,(site_is_outside, site_is_alive, site_street, site_city, site_zipcode))
+                link.commit()
+                session.clear()
+                message.body("Thank you for your response!")
+            elif userInput == '2':
+                session['site_is_alive'] = True
+                site_is_outside = session.get('site_is_outside', 0)
+                site_is_alive = session.get('site_is_alive', 0)
+                site_street = session.get('site_street', 0)
+                site_city = session.get('site_city', 0)
+                site_zipcode = session.get('site_zipcode', 0)
 
-            #resetting the counters, back to case 0
-            case = 0
-            counter = 0
+                addSite = "INSERT INTO ratsite (`is_outside`, `is_alive`, `street`, `city`, `zipcode`) VALUES (%s, %s, %s, %s, %s)"
+                cursor.execute(addSite,(site_is_outside, site_is_alive, site_street, site_city, site_zipcode))
+                link.commit()
+                session.clear()
+                message.body("Thank you for your response!")
+            else:
+                message.body("Your input was incorrect. \nPlease try again. \n\n"
+                + "Was the rat dead or alive? \n 1. Dead \n 2. Alive \n Type '1' or '2'")
 
-        else:
-            #---------ERROR--------------
-            message.body("Sorry looks like there was an error. Please enter only the numbers provided as an option."
-            + "\n Type '1' or '2'")
-            #reset counters, back to case 0
+        # Implement image feature here.
 
     elif (case == 2):
         if (counter == 1):
-            message.body("Please categorize your evidence:\n 1.Rat Droppings\n 2.Chewed boxes or food \n Type '1' or '2'")
-            counter = counter + 1
-
-        elif (counter == 2 and (userInput == "1" or userInput == "2")):
-            message.body("Please give us a location. Type the Street Name. For example 'Main Street'")
-            counter = counter + 1
-
-            #response for rat evidence: "what type of evidence?"
-            print (dict_evidence[userInput])
-
-            if userInput == '1':
-                evid_droppings = True
-                evid_chewed = False
-            elif userInput == '2':
-                evid_chewed = True
-                evid_droppings = False
-
+            message.body("Where did you see the evidence? Type the street name. For example '120 Main Street'")
+            counter += 1         
+            session['counter'] = counter
+        elif (counter == 2):
+            if (userInput.replace(' ','').isalnum()):
+                session['evidence_street'] = userInput
+                message.body("Please type the City. For example 'Atlanta'")
+                counter += 1         
+                session['counter'] = counter
+            else:
+                message.body("Your input was incorrect. \nPlease try again. \n\n"
+                + "Where did you see the evidence?. Type the street name. For example '120 Main Street'")
         elif (counter == 3):
-            message.body("Please type the City. For example 'Atlanta'")
-            counter = counter + 1
-
-            evid_street = userInput
-
+            if (userInput.isalpha()):
+                session['evidence_city'] = userInput
+                message.body("Please type the Zipcode. For example '30332'")
+                counter += 1         
+                session['counter'] = counter
+            else:
+                message.body("Your input was incorrect. \nPlease try again. \n\n"
+                + "Please type the City. For example 'Atlanta'")
         elif (counter == 4):
-            message.body("Please type the Zipcode. For example '30332'")
-            counter = counter + 1
-
-            evid_city = userInput
-            
+            try:
+                userInput = int(userInput)
+                session['evidence_zipcode'] = userInput
+                message.body("Please categorize your evidence:\n 1.Rat Droppings\n 2.Chewed boxes or food \n Type '1' or '2'")
+                counter += 1         
+                session['counter'] = counter
+            except:
+                message.body("Your input was incorrect. \nPlease try again. \n\n"
+                + "Please type the Zipcode. For example '30332'")
         elif (counter == 5):
-            message.body("Thank you for your response!")
+            if userInput == '1':
+                session['evidence_droppings'] = True
+                session['evidence_chewed'] = False
 
-            evid_zipcode = userInput
+                evidence_droppings = session.get('evidence_droppings', 0)
+                evidence_chewed = session.get('evidence_chewed', 0)
+                evidence_street = session.get('evidence_street', 0)
+                evidence_city = session.get('evidence_city', 0)
+                evidence_zipcode = session.get('evidence_zipcode', 0)
 
-            #resetting counters, back to case 0
-            case = 0
-            counter = 0
+                addEvidence = "INSERT INTO ratevidence (`droppings`, `chewed`, `street`, `city`, `zipcode`) VALUES (%s, %s, %s, %s, %s)"
+                cursor.execute(addEvidence,(evidence_droppings, evidence_chewed, evidence_street, evidence_city, evidence_zipcode))
+                link.commit()
+                session.clear()
+                message.body("Thank you for your response!")
+            elif userInput == '2':
+                session['evidence_chewed'] = True
+                session['evidence_droppings'] = False
 
-            addSawEvidence = "INSERT INTO ratevidence (`droppings`, `chewed`, `street`, `city`, `zipcode`) VALUES (%s, %s, %s, %s, %s)"
-            cursor.execute(addSawEvidence,(evid_droppings, evid_chewed, evid_street, evid_city, evid_zipcode))
-            link.commit()
+                evidence_droppings = session.get('evidence_droppings', 0)
+                evidence_chewed = session.get('evidence_chewed', 0)
+                evidence_street = session.get('evidence_street', 0)
+                evidence_city = session.get('evidence_city', 0)
+                evidence_zipcode = session.get('evidence_zipcode', 0)
 
-        else:
-            #-----------ERROR------------
-            message.body("Sorry looks like there was an error. Please enter only the numbers provided as an option."
-            + "\n Type '1' or '2'")
-            #reset counters, back to case 0
-            # counter = 0
-            # case = 0
+                addEvidence = "INSERT INTO ratevidence (`droppings`, `chewed`, `street`, `city`, `zipcode`) VALUES (%s, %s, %s, %s, %s)"
+                cursor.execute(addEvidence,(evidence_droppings, evidence_chewed, evidence_street, evidence_city, evidence_zipcode))
+                link.commit()
+                session.clear()
+                message.body("Thank you for your response!")
+            else:
+                message.body("Your input was incorrect. \nPlease try again. \n\n"
+                + "Please categorize your evidence:\n 1.Rat Droppings\n 2.Chewed boxes or food \n Type '1' or '2'")
+
+        # Implement image feature here.
 
     elif (case == 3):
         if (counter == 1):
             message.body("Thank you for your interest in rat prevention. Please follow this link for more info: linkhere")
-            counter = 0
-            case = 0
+            session.clear()
 
     response.append(message)
     return str(response)
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)
