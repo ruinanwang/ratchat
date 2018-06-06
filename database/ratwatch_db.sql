@@ -2,13 +2,11 @@
 /* DATABASE FILE
   This file automatically creates the 'ratwatch_db' 
   database, along with its associated tables.
-  - Michael Koohang 
 */
 
 /* DATABASE CREATION
   Creates the 'ratwatch_db' database and makes
   it the active database.
-  - Michael Koohang
 */
 CREATE DATABASE IF NOT EXISTS `ratwatch_db`;
 USE `ratwatch_db`;
@@ -16,7 +14,6 @@ USE `ratwatch_db`;
 /* TABLE CREATION - ratevidence
   Creates the 'ratevidence' table and
   its associated fields.
-  - Michael Koohang
 */
 DROP TABLE IF EXISTS `ratevidence`;
 CREATE TABLE `ratevidence` (
@@ -34,7 +31,6 @@ CREATE TABLE `ratevidence` (
 /* TABLE CREATION - ratsite
   Creates the 'ratsite' table and
   its associated fields.
-  - Michael Koohang
 */
 DROP TABLE IF EXISTS `ratsite`;
 CREATE TABLE `ratsite` (

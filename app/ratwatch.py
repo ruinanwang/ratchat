@@ -4,49 +4,79 @@
 # a SMS survey for people to report rat sitings or evidence
 # in the city of Atlanta. The app also stores user responses
 # into a MySQL database for analysis.
-# - Michael Koohang
 
 import config
+import prompts
 import requests
 import mysql.connector
 from mysql.connector import errorcode
 from flask import Flask, request, session
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 
-# Establishes a connection with database. 
-# - Michael Koohang
+# Establishes a connection with database.
 try:
-    link = mysql.connector.connect(**config.db)
-    cursor = link.cursor()
+    connection = mysql.connector.connect(**config.db)
+    cursor = connection.cursor()
 except mysql.connector.Error:
     raise
 
 # Configures and starts the application.
-# - Michael Koohang
-PHOTO_DOWNLOAD_DIRECTORY = config.photo_directory
+IMAGE_DOWNLOAD_DIRECTORY = config.image_directory
 SECRET_KEY = config.secret_key
 app = Flask(__name__)
 app.config.from_object(__name__)
 
+# Prompts for the survey.
+
+# General prompts.
+welcome = prompts.welcome
+welcome_error = prompts.welcome_error
+city = prompts.city
+city_error = prompts.city_error
+zipcode = prompts.zipcode
+zipcode_error = prompts.zipcode_error
+survey_complete = prompts.survey_complete
+survey_complete_image = prompts.survey_complete_image
+
+# Rat siting prompts.
+site_address = prompts.site_address
+site_address_error = prompts.site_address_error
+in_out = prompts.in_out
+in_out_error = prompts.in_out_error
+dead_or_alive = prompts.dead_or_alive
+dead_or_alive_error = prompts.dead_or_alive_error
+site_picture = prompts.site_picture
+site_picture_error = prompts.site_picture_error
+
+# Rat evidence prompts.
+evidence_address = prompts.evidence_address
+evidence_address_error = prompts.evidence_address_error
+category = prompts.category
+category_error = prompts.category_error
+evidence_picture = prompts.evidence_picture
+evidence_picture_error = prompts.evidence_picture_error
+
+# SQL statements for inserting and updating information.
+addSiteSQL = config.addSiteSQL
+addEvidenceSQL = config.addEvidenceSQL
+updateSiteImageSQL = config.updateSiteImageSQL
+updateEvidenceImageSQL = config.updateEvidenceImageSQL
+
 # Function that provides instructions
 # to Twilio on how to respond to an
 # incoming SMS message.
-# - Michael Koohang
-@app.route("/sms", methods=['GET', 'POST'])
+@app.route('/sms', methods=['GET', 'POST'])
 def process_message():
 
     response = MessagingResponse()
     message = Message()
-    userInput = request.values.get("Body", None)
+    userInput = request.values.get('Body', None)
     counter = session.get('counter', 0)
     case = session.get('case', 0)
 
     # Case 0 - Start
-    # - Michael Koohang
     if (counter == 0):
-        message.body("Welcome to RatWatch! Please reply with one of the following numbers:"
-        + "\n  1. I saw a rat \n  2. I saw evidence of a rat"
-        + "\n  3. I want to prevent rats\nType '1' or '2' or '3'")
+        message.body(welcome)
         counter += 1
         session['counter'] = counter
         response.append(message)
@@ -55,75 +85,63 @@ def process_message():
     # Sets the current case based on the user's input.
     # If the user has already selected a case, then
     # the application continues.
-    # - Michael Koohang
     if (not case):
-        if (userInput == "1" and counter == 1):
+        if (userInput == '1' and counter == 1):
             session['case'] = 1
             case = session.get('case', 0)
-        elif (userInput == "2" and counter == 1):
+        elif (userInput == '2' and counter == 1):
             session['case'] = 2
             case = session.get('case', 0)
-        elif (userInput == "3" and counter == 1):
+        elif (userInput == '3' and counter == 1):
             session['case'] = 3
             case = session.get('case', 0)
         else:
-            message.body("Your input was incorrect. \nPlease try again. \n\n"
-            + "Please reply with one of the following numbers:"
-            + "\n 1. I saw a rat \n 2. I saw evidence of a rat"
-            + "\n 3. I want to prevent rats \n Type '1' or '2' or '3'")
+            message.body(welcome_error)
 
     # Decision tree that carries out the appropriate 
     # logic based on the case and the counter.
-    # - Michael Koohang
     if (case == 1):
         if (counter == 1):
-            message.body("Where did you see the rat?\n\nType the street name and house number. For example '120 Main Street' "
-            + "\n\nIf you don't know the house number, you can just type the street name. For example 'Main Street'")
+            message.body(site_address)
             counter += 1         
             session['counter'] = counter
         elif (counter == 2):
-            if (userInput.replace(' ','').isalnum()):
+            if (userInput.replace(' ', '').isalnum()):
                 session['site_street'] = userInput
-                message.body("Please type the city. For example 'Atlanta'")
+                message.body(city)
                 counter += 1         
                 session['counter'] = counter
             else:
-                message.body("Your input was incorrect. \nPlease try again. \n\n"
-                + "Where did you see the rat?\nType the street name and house number. For example '120 Main Street' "
-                + "\nIf you don't know the house number, you can just type the street name. For example 'Main Street'")
+                message.body(site_address_error)
         elif (counter == 3):
             if (userInput.isalpha()):
                 session['site_city'] = userInput
-                message.body("Please type the zipcode. For example '30332'")
+                message.body(zipcode)
                 counter += 1         
                 session['counter'] = counter
             else:
-                message.body("Your input was incorrect. \nPlease try again. \n\n"
-                + "Please type the city. For example 'Atlanta'")
+                message.body(city_error)
         elif (counter == 4):
-            try:
-                userInput = int(userInput)
+            if (userInput.isdigit() and len(userInput) == 5):
                 session['site_zipcode'] = userInput
-                message.body("Where did you see the rat? \n 1. Inside \n 2.Outside \nType '1' or '2'")
+                message.body(in_out)
                 counter += 1         
                 session['counter'] = counter
-            except:
-                message.body("Your input was incorrect. \nPlease try again. \n\n"
-                + "Please type the zipcode. For example '30332'")
+            else:
+                message.body(zipcode_error)
         elif (counter == 5):
             if userInput == '1':
                 session['site_is_outside'] = False
-                message.body("Was the rat dead or alive? \n 1. Dead \n 2. Alive \nType '1' or '2'")
+                message.body(dead_or_alive)
                 counter += 1         
                 session['counter'] = counter
             elif userInput == '2':
                 session['site_is_outside'] = True
-                message.body("Was the rat dead or alive? \n 1. Dead \n 2. Alive \nType '1' or '2'")
+                message.body(dead_or_alive)
                 counter += 1         
                 session['counter'] = counter
             else:
-                message.body("Your input was incorrect. \nPlease try again. \n\n"
-                + "Where did you see the rat? \n 1. Inside \n 2.Outside \n Type '1' or '2'")
+                message.body(in_out_error)
         elif (counter == 6):
             if userInput == '1':
                 session['site_is_alive'] = False
@@ -133,13 +151,12 @@ def process_message():
                 site_city = session.get('site_city', 0)
                 site_zipcode = session.get('site_zipcode', 0)
 
-                addSite = "INSERT INTO ratsite (`is_outside`, `is_alive`, `street`, `city`, `zipcode`) VALUES (%s, %s, %s, %s, %s)"
-                cursor.execute(addSite,(site_is_outside, site_is_alive, site_street, site_city, site_zipcode))
+                cursor.execute(addSiteSQL,(site_is_outside, site_is_alive, site_street, site_city, site_zipcode))
                 session['rowId'] = cursor.lastrowid
-                link.commit()
+                connection.commit()
                 counter += 1
                 session['counter'] = counter
-                message.body("Please send us a picture of the rat or where your saw the rat. Otherwise, type 'DONE' to finish the survey.")
+                message.body(site_picture)
             elif userInput == '2':
                 session['site_is_alive'] = True
                 site_is_outside = session.get('site_is_outside', 0)
@@ -148,73 +165,60 @@ def process_message():
                 site_city = session.get('site_city', 0)
                 site_zipcode = session.get('site_zipcode', 0)
 
-                addSite = "INSERT INTO ratsite (`is_outside`, `is_alive`, `street`, `city`, `zipcode`) VALUES (%s, %s, %s, %s, %s)"
-                cursor.execute(addSite,(site_is_outside, site_is_alive, site_street, site_city, site_zipcode))
+                cursor.execute(addSiteSQL,(site_is_outside, site_is_alive, site_street, site_city, site_zipcode))
                 session['rowId'] = cursor.lastrowid
-                link.commit()
+                connection.commit()
                 counter += 1
                 session['counter'] = counter
-                message.body("Please send us a picture of the rat or where your saw the rat. Otherwise, type 'DONE' to finish the survey.")
+                message.body(site_picture)
             else:
-                message.body("Your input was incorrect. \nPlease try again. \n\n"
-                + "Was the rat dead or alive? \n 1. Dead \n 2. Alive \n Type '1' or '2'")
+                message.body(dead_or_alive_error)
         elif (counter == 7):
             if request.values['NumMedia'] != '0':
-                # Use the message SID as a filename.
                 filename = request.values['MessageSid'] + '.png'
-                with open('{}/{}'.format(PHOTO_DOWNLOAD_DIRECTORY, filename), 'wb') as f:
+                filepath = IMAGE_DOWNLOAD_DIRECTORY + filename
+                with open(filepath, 'wb') as f:
                     image_url = request.values['MediaUrl0']
                     f.write(requests.get(image_url).content)
-                filePath = PHOTO_DOWNLOAD_DIRECTORY + filename
-                updateImage = "UPDATE ratsite SET image=%s WHERE id=%s;"
-                cursor.execute(updateImage, (filePath, session['rowId']))
-                link.commit()
+                cursor.execute(updateSiteImageSQL, (filepath, session['rowId']))
+                connection.commit()
                 session.clear()
-                message.body("Thanks for the image! You have completed the survey.")
+                message.body(survey_complete_image)
             elif (userInput.upper() == 'DONE'):
                 session.clear()
-                message.body("You have completed the survey. Thank you!")   
+                message.body(survey_complete)   
             else:
-                message.body("Your input was incorrect. \nPlease try again. \n\n"
-                    + "Please send us a picture of the rat or where your saw the rat.\nOtherwise, type 'DONE' to finish the survey.")
-
-        # Implement image feature here.
+                message.body(site_picture_error)
 
     elif (case == 2):
         if (counter == 1):
-            message.body("Where did you see the evidence?\n\nType the street name and house number. For example '120 Main Street' "
-            + "\n\nIf you don't know the house number, you can just type the street name. For example 'Main Street'")
+            message.body(evidence_address)
             counter += 1         
             session['counter'] = counter
         elif (counter == 2):
-            if (userInput.replace(' ','').isalnum()):
+            if (userInput.replace(' ', '').isalnum()):
                 session['evidence_street'] = userInput
-                message.body("Please type the city. For example 'Atlanta'")
+                message.body(city)
                 counter += 1         
                 session['counter'] = counter
             else:
-                message.body("Your input was incorrect. \nPlease try again. \n\n"
-                + "Where did you see the evidence?\n\nType the street name and house number. For example '120 Main Street' "
-                + "\n\nIf you don't know the house number, you can just type the street name. For example 'Main Street'")
+                message.body(evidence_address_error)
         elif (counter == 3):
             if (userInput.isalpha()):
                 session['evidence_city'] = userInput
-                message.body("Please type the zipcode. For example '30332'")
+                message.body(zipcode)
                 counter += 1         
                 session['counter'] = counter
             else:
-                message.body("Your input was incorrect. \nPlease try again. \n\n"
-                + "Please type the city. For example 'Atlanta'")
+                message.body(city_error)
         elif (counter == 4):
-            try:
-                userInput = int(userInput)
+            if (userInput.isdigit() and len(userInput) == 5):
                 session['evidence_zipcode'] = userInput
-                message.body("Please categorize your evidence:\n 1. Rat droppings\n 2. Chewed boxes or food \nType '1' or '2'")
+                message.body(category)
                 counter += 1         
                 session['counter'] = counter
-            except:
-                message.body("Your input was incorrect. \nPlease try again. \n\n"
-                + "Please type the zipcode. For example '30332'")
+            else:
+                message.body(zipcode_error)
         elif (counter == 5):
             if userInput == '1':
                 session['evidence_droppings'] = True
@@ -226,13 +230,12 @@ def process_message():
                 evidence_city = session.get('evidence_city', 0)
                 evidence_zipcode = session.get('evidence_zipcode', 0)
 
-                addEvidence = "INSERT INTO ratevidence (`droppings`, `chewed`, `street`, `city`, `zipcode`) VALUES (%s, %s, %s, %s, %s)"
-                cursor.execute(addEvidence,(evidence_droppings, evidence_chewed, evidence_street, evidence_city, evidence_zipcode))                
+                cursor.execute(addEvidenceSQL,(evidence_droppings, evidence_chewed, evidence_street, evidence_city, evidence_zipcode))                
                 session['rowId'] = cursor.lastrowid
-                link.commit()
+                connection.commit()
                 counter += 1
                 session['counter'] = counter
-                message.body("Please send us a picture of the evidence. Otherwise, type 'DONE' to finish the survey.")
+                message.body(evidence_picture)
             elif userInput == '2':
                 session['evidence_droppings'] = False
                 session['evidence_chewed'] = True
@@ -243,44 +246,39 @@ def process_message():
                 evidence_city = session.get('evidence_city', 0)
                 evidence_zipcode = session.get('evidence_zipcode', 0)
 
-                addEvidence = "INSERT INTO ratevidence (`droppings`, `chewed`, `street`, `city`, `zipcode`) VALUES (%s, %s, %s, %s, %s)"
-                cursor.execute(addEvidence,(evidence_droppings, evidence_chewed, evidence_street, evidence_city, evidence_zipcode))
+                cursor.execute(addEvidenceSQL,(evidence_droppings, evidence_chewed, evidence_street, evidence_city, evidence_zipcode))
                 session['rowId'] = cursor.lastrowid
-                link.commit()
+                connection.commit()
                 counter += 1
                 session['counter'] = counter
-                message.body("Please send us a picture of the evidence. Otherwise, type 'DONE' to finish the survey.")
+                message.body(evidence_picture)
             else:
-                message.body("Your input was incorrect. \nPlease try again. \n\n"
-                + "Please categorize your evidence:\n 1. Rat droppings\n 2. Chewed boxes or food \nType '1' or '2'")
+                message.body(category_error)
 
         elif (counter == 6):
             if request.values['NumMedia'] != '0':
-                # Use the message SID as a filename.
                 filename = request.values['MessageSid'] + '.png'
-                with open('{}/{}'.format(PHOTO_DOWNLOAD_DIRECTORY, filename), 'wb') as f:
+                filepath = IMAGE_DOWNLOAD_DIRECTORY + filename
+                with open(filepath, 'wb') as f:
                     image_url = request.values['MediaUrl0']
                     f.write(requests.get(image_url).content)
-                filePath = PHOTO_DOWNLOAD_DIRECTORY + filename
-                updateImage = "UPDATE ratevidence SET image=%s WHERE id=%s;"
-                cursor.execute(updateImage, (filePath, session['rowId']))
-                link.commit()
+                cursor.execute(updateEvidenceImageSQL, (filepath, session['rowId']))
+                connection.commit()
                 session.clear()
-                message.body("Thanks for the image! You have completed the survey.")
+                message.body(survey_complete_image)
             elif (userInput.upper() == 'DONE'):
                 session.clear()
-                message.body("You have completed the survey. Thank you!")   
+                message.body(survey_complete)   
             else:
-                message.body("Your input was incorrect. \nPlease try again. \n\n"
-                    + "Please send us a picture of the evidence. Otherwise, type 'DONE' to end the survey.")
+                message.body(evidence_picture_error)
 
     elif (case == 3):
         if (counter == 1):
-            message.body("Thank you for your interest in rat prevention. Please follow this link for more info:\nlinkhere")
+            message.body(prevention)
             session.clear()
 
     response.append(message)
     return str(response)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
