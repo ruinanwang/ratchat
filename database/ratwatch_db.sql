@@ -19,12 +19,13 @@ DROP TABLE IF EXISTS `ratevidence`;
 CREATE TABLE `ratevidence` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `droppings` tinyint(1) NOT NULL,
-  `chewed` tinyint(1) NOT NULL,
-  `street` varchar(255) NOT NULL,
-  `city` varchar(255) NOT NULL,
-  `zipcode` varchar(255) NOT NULL,
+  `street` varchar(255) DEFAULT NULL,
+  `city` varchar(255) DEFAULT NULL,
+  `zipcode` varchar(255) DEFAULT NULL,
+  `droppings` tinyint(1) DEFAULT NULL,
+  `chewed` tinyint(1) DEFAULT NULL,
   `image` varchar(100) DEFAULT NULL,
+  `restarted` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -36,12 +37,13 @@ DROP TABLE IF EXISTS `ratsite`;
 CREATE TABLE `ratsite` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `is_outside` tinyint(1) NOT NULL,
-  `is_alive` tinyint(1) NOT NULL,
-  `street` varchar(255) NOT NULL,
-  `city` varchar(255) NOT NULL,
-  `zipcode` varchar(255) NOT NULL,
+  `street` varchar(255) DEFAULT NULL,
+  `city` varchar(255) DEFAULT NULL,
+  `zipcode` varchar(255) DEFAULT NULL,
+  `is_outside` tinyint(1) DEFAULT NULL,
+  `is_alive` tinyint(1) DEFAULT NULL,
   `image` varchar(100) DEFAULT NULL,
+  `restarted` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
