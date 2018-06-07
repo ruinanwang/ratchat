@@ -9,7 +9,7 @@ welcome = ('Welcome to RatWatch!'
 + '\n1. I saw a rat \n2. I saw evidence of a rat'
 + '\n3. I want to prevent rats'
 + '\nType 1, 2, or 3'
-+ '\n\nIf you need to restart the survey at any point, just type RESTART')
++ '\n\nIf you make any mistakes, you can restart the survey by typing RESTART')
 
 welcome_error = ('Your input was incorrect. \nPlease try again. \n\n'
 + 'Welcome to RatWatch!'
@@ -29,7 +29,7 @@ zipcode_error = ('Your input was incorrect. \nPlease try again. \n\n'
 
 survey_complete = ('You have completed the survey. Thank you for your response! Just text us again if you want to make another report :)')
 
-mistakes_prompt = ('You have made too many errors on the survey. Your report was not saved. To restart, please text us again.')
+mistakes_prompt = ('You have made too many errors on the survey. To restart, please text us again.')
 
 restart_prompt = ('You have restarted the survey. To make a new report, please text us again.')
 

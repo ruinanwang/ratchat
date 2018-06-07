@@ -14,8 +14,9 @@ from flask import Flask, request, session
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 
 # Establishes a connection with database.
+db_credentials = config.db_credentials
 try:
-    connection = mysql.connector.connect(**config.db)
+    connection = mysql.connector.connect(**db_credentials)
     cursor = connection.cursor()
 except mysql.connector.Error:
     raise
@@ -61,21 +62,24 @@ evidence_picture_error = prompts.evidence_picture_error
 add_site_sql = config.add_site_sql
 add_evidence_sql = config.add_evidence_sql
 
+update_site_street_sql = config.update_site_street_sql
 update_site_city_sql = config.update_site_city_sql
 update_site_zip_sql = config.update_site_zip_sql
 update_site_in_out_sql = config.update_site_in_out_sql
 update_site_dead_alive_sql = config.update_site_dead_alive_sql
 update_site_image_sql = config.update_site_image_sql
+update_site_finished_sql = config.update_site_finished_sql
 update_site_restart_sql = config.update_site_restart_sql
+update_site_mistake_sql = config.update_site_mistake_sql
 
+update_evidence_street_sql = config.update_evidence_street_sql
 update_evidence_city_sql = config.update_evidence_city_sql
 update_evidence_zip_sql = config.update_evidence_zip_sql
 update_evidence_category_sql =config.update_evidence_category_sql
 update_evidence_image_sql = config.update_evidence_image_sql
+update_evidence_finished_sql = config.update_evidence_finished_sql
 update_evidence_restart_sql = config.update_evidence_restart_sql
-
-delete_site_sql = config.delete_site_sql
-delete_evidence_sql = config.delete_evidence_sql
+update_evidence_mistake_sql = config.update_evidence_mistake_sql
 
 # Function that provides instructions
 # to Twilio on how to respond to an
@@ -101,13 +105,19 @@ def process_message():
     # If the user has already selected a case, then
     # the application continues.
     if (not case):
-        if (userInput == '1' and counter == 1):
+        if (userInput == '1'):
             session['case'] = 1
             case = session.get('case', 0)
-        elif (userInput == '2' and counter == 1):
+            cursor.execute(add_site_sql)
+            session['row_id'] = cursor.lastrowid
+            connection.commit()
+        elif (userInput == '2'):
             session['case'] = 2
             case = session.get('case', 0)
-        elif (userInput == '3' and counter == 1):
+            cursor.execute(add_evidence_sql)
+            session['row_id'] = cursor.lastrowid
+            connection.commit()
+        elif (userInput == '3'):
             session['case'] = 3
             case = session.get('case', 0)
         else:
@@ -128,13 +138,14 @@ def process_message():
             session['counter'] = counter + 1
         elif (counter == 2):
             if (userInput.upper() == 'RESTART'):
+                cursor.execute(update_site_restart_sql, (1, session['row_id'],))
+                connection.commit()
                 session.clear()
                 message.body(restart_prompt)
                 response.append(message)
                 return str(response)
             elif (userInput.replace(' ', '').isalnum()):
-                cursor.execute(add_site_sql, (userInput,))
-                session['row_id'] = cursor.lastrowid
+                cursor.execute(update_site_street_sql, (userInput, session['row_id']))
                 connection.commit()
                 message.body(city)
                 session['counter'] = counter + 1
@@ -143,6 +154,8 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
+                    cursor.execute(update_site_mistake_sql, (1, session['row_id']))
+                    connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
                     response.append(message)
@@ -166,6 +179,8 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
+                    cursor.execute(update_site_mistake_sql, (1, session['row_id']))
+                    connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
                     response.append(message)
@@ -189,6 +204,8 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
+                    cursor.execute(update_site_mistake_sql, (1, session['row_id']))
+                    connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
                     response.append(message)
@@ -218,6 +235,8 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
+                    cursor.execute(update_site_mistake_sql, (1, session['row_id']))
+                    connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
                     response.append(message)
@@ -233,29 +252,30 @@ def process_message():
                 return str(response)
             elif userInput == '1':
                 cursor.execute(update_site_dead_alive_sql, (0, session['row_id']))
-                cursor.execute(update_site_restart_sql, (0, session['row_id']))
+                cursor.execute(update_site_finished_sql, (1, session['row_id']))
                 connection.commit()
+                message.body(site_picture)
                 session['counter'] = counter + 1
                 session['mistakes'] = 0
-                message.body(site_picture)
             elif userInput == '2':
                 cursor.execute(update_site_dead_alive_sql, (1, session['row_id']))
-                cursor.execute(update_site_restart_sql, (0, session['row_id']))
+                cursor.execute(update_site_finished_sql, (1, session['row_id']))
                 connection.commit()
+                message.body(site_picture)
                 session['counter'] = counter + 1
                 session['mistakes'] = 0
-                message.body(site_picture)
             else:
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
+                    cursor.execute(update_site_mistake_sql, (1, session['row_id']))
+                    connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
                     response.append(message)
                     return str(response)
                 message.body(dead_or_alive_error)
         elif (counter == 7):
-            # Delete the SQL information as needed
             if (userInput.upper() == 'RESTART'):
                 cursor.execute(update_site_restart_sql, (1, session['row_id']))
                 connection.commit()
@@ -280,7 +300,7 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
-                    cursor.execute(delete_site_sql, (session['row_id'],))
+                    cursor.execute(update_site_mistake_sql, (1, session['row_id']))
                     connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
@@ -301,9 +321,8 @@ def process_message():
                 response.append(message)
                 return str(response)
             elif (userInput.replace(' ', '').isalnum()):
-                cursor.execute(add_evidence_sql, (userInput,))
+                cursor.execute(update_evidence_street_sql, (userInput, session['row_id']))
                 connection.commit()
-                session['row_id'] = cursor.lastrowid
                 message.body(city)
                 session['counter'] = counter + 1
                 session['mistakes'] = 0
@@ -311,6 +330,8 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
+                    cursor.execute(update_evidence_mistake_sql, (1, session['row_id']))
+                    connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
                     response.append(message)
@@ -334,6 +355,8 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
+                    cursor.execute(update_evidence_mistake_sql, (1, session['row_id']))
+                    connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
                     response.append(message)
@@ -357,6 +380,8 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
+                    cursor.execute(update_evidence_mistake_sql, (1, session['row_id']))
+                    connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
                     response.append(message)
@@ -372,14 +397,14 @@ def process_message():
                 return str(response)
             elif userInput == '1':
                 cursor.execute(update_evidence_category_sql, (1, 0, session['row_id']))
-                cursor.execute(update_evidence_restart_sql, (0, session['row_id']))
+                cursor.execute(update_evidence_finished_sql, (1, session['row_id']))
                 connection.commit()
                 session['counter'] = counter + 1
                 session['mistakes'] = 0
                 message.body(evidence_picture)
             elif userInput == '2':
-                cursor.execute(update_evidence_city_sql, (0, 1, session['row_id']))
-                cursor.execute(update_evidence_restart_sql, (0, session['row_id']))
+                cursor.execute(update_evidence_category_sql, (0, 1, session['row_id']))
+                cursor.execute(update_evidence_finished_sql, (1, session['row_id']))
                 connection.commit()
                 session['counter'] = counter + 1
                 session['mistakes'] = 0
@@ -388,6 +413,8 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
+                    cursor.execute(update_evidence_mistake_sql, (1, session['row_id']))
+                    connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
                     response.append(message)
@@ -419,7 +446,7 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
-                    cursor.execute(delete_evidence_sql, (session['row_id'],))
+                    cursor.execute(update_evidence_mistake_sql, (1, session['row_id']))
                     connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)

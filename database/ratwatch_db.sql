@@ -25,7 +25,9 @@ CREATE TABLE `ratevidence` (
   `droppings` tinyint(1) DEFAULT NULL,
   `chewed` tinyint(1) DEFAULT NULL,
   `image` varchar(100) DEFAULT NULL,
-  `restarted` tinyint(1) DEFAULT NULL,
+  `finished` tinyint(1) DEFAULT 0,
+  `restarted` tinyint(1) DEFAULT 0,
+  `made_mistake` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -43,7 +45,9 @@ CREATE TABLE `ratsite` (
   `is_outside` tinyint(1) DEFAULT NULL,
   `is_alive` tinyint(1) DEFAULT NULL,
   `image` varchar(100) DEFAULT NULL,
-  `restarted` tinyint(1) DEFAULT NULL,
+  `finished` tinyint(1) DEFAULT 0,
+  `restarted` tinyint(1) DEFAULT 0,
+  `made_mistake` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
