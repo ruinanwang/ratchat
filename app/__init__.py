@@ -22,7 +22,8 @@ except mysql.connector.Error:
     raise
 
 # Configures and starts the application.
-IMAGE_DOWNLOAD_DIRECTORY = config.image_directory
+SITING_IMAGE_DOWNLOAD_DIRECTORY = config.siting_image_directory
+EVIDENCE_IMAGE_DOWNLOAD_DIRECTORY = config.evidence_image_directory
 SECRET_KEY = config.secret_key
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -84,7 +85,7 @@ update_evidence_mistake_sql = config.update_evidence_mistake_sql
 # Function that provides instructions
 # to Twilio on how to respond to an
 # incoming SMS message.
-@app.route('/sms', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def process_message():
 
     response = MessagingResponse()
@@ -285,7 +286,7 @@ def process_message():
                 return str(response)
             elif request.values['NumMedia'] != '0':
                 filename = request.values['MessageSid'] + '.jpg'
-                filepath = IMAGE_DOWNLOAD_DIRECTORY + filename
+                filepath = SITING_IMAGE_DOWNLOAD_DIRECTORY + filename
                 with open(filepath, 'wb') as f:
                     image_url = request.values['MediaUrl0']
                     f.write(requests.get(image_url).content)
@@ -431,7 +432,7 @@ def process_message():
                 return str(response)
             elif request.values['NumMedia'] != '0':
                 filename = request.values['MessageSid'] + '.jpg'
-                filepath = IMAGE_DOWNLOAD_DIRECTORY + filename
+                filepath = EVIDENCE_IMAGE_DOWNLOAD_DIRECTORY + filename
                 with open(filepath, 'wb') as f:
                     image_url = request.values['MediaUrl0']
                     f.write(requests.get(image_url).content)
@@ -463,4 +464,4 @@ def process_message():
     return str(response)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
