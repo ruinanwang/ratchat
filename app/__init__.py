@@ -40,6 +40,7 @@ zipcode_error = prompts.zipcode_error
 survey_complete = prompts.survey_complete
 mistakes_prompt = prompts.mistakes_prompt
 restart_prompt = prompts.restart_prompt
+prevention = prompts.prevention
 
 # Rat siting prompts.
 site_address = prompts.site_address
@@ -456,9 +457,8 @@ def process_message():
                 message.body(evidence_picture_error)
 
     elif (case == 3):
-        if (counter == 1):
-            message.body(prevention)
-            session.clear()
+        message.body(prevention)
+        session.clear()
 
     response.append(message)
     return str(response)
