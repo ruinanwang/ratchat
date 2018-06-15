@@ -15,8 +15,8 @@ USE `ratwatch_db`;
   Creates the 'ratevidence' table and
   its associated fields.
 */
-DROP TABLE IF EXISTS `ratevidence`;
-CREATE TABLE `ratevidence` (
+DROP TABLE IF EXISTS `rat_evidence`;
+CREATE TABLE `rat_evidence` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `street` varchar(255) DEFAULT NULL,
@@ -35,8 +35,8 @@ CREATE TABLE `ratevidence` (
   Creates the 'ratsite' table and
   its associated fields.
 */
-DROP TABLE IF EXISTS `ratsite`;
-CREATE TABLE `ratsite` (
+DROP TABLE IF EXISTS `rat_sightings`;
+CREATE TABLE `rat_sightings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `street` varchar(255) DEFAULT NULL,
