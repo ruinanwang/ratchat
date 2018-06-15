@@ -1,7 +1,7 @@
 
 # ratwatch.py
 # Flask app that interfaces with the Twilio API to create
-# a SMS survey for people to report rat sitings or evidence
+# a SMS report for people to report rat sightings or evidence
 # in the city of Atlanta. The app also stores user responses
 # into a MySQL database for analysis.
 
@@ -10,7 +10,7 @@ import prompts
 import requests
 import mysql.connector
 from mysql.connector import errorcode
-from flask import Flask, request, session
+from flask import Flask, request, session, render_template
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 
 # Establishes a connection with database.
@@ -22,57 +22,60 @@ except mysql.connector.Error:
     raise
 
 # Configures and starts the application.
-SITING_IMAGE_DOWNLOAD_DIRECTORY = config.siting_image_directory
+SIGHTING_IMAGE_DOWNLOAD_DIRECTORY = config.sighting_image_directory
 EVIDENCE_IMAGE_DOWNLOAD_DIRECTORY = config.evidence_image_directory
 SECRET_KEY = config.secret_key
 app = Flask(__name__)
 app.config.from_object(__name__)
 
-# Prompts for the survey.
+# Prompts for the report.
 
 # General prompts.
 welcome = prompts.welcome
 welcome_error = prompts.welcome_error
-city = prompts.city
-city_error = prompts.city_error
-zipcode = prompts.zipcode
-zipcode_error = prompts.zipcode_error
-survey_complete = prompts.survey_complete
+report_complete = prompts.report_complete
 mistakes_prompt = prompts.mistakes_prompt
-restart_prompt = prompts.restart_prompt
-prevention = prompts.prevention
+prevention_prompt = prompts.prevention_prompt
 
-# Rat siting prompts.
-site_address = prompts.site_address
-site_address_error = prompts.site_address_error
+# Rat sighting prompts.
+sighting_address = prompts.sighting_address
+sighting_address_error = prompts.sighting_address_error
+sighting_city = prompts.sighting_city
+sighting_city_error = prompts.sighting_city_error
+sighting_zipcode = prompts.sighting_zipcode
+sighting_zipcode_error = prompts.sighting_zipcode_error
 in_out = prompts.in_out
 in_out_error = prompts.in_out_error
 dead_or_alive = prompts.dead_or_alive
 dead_or_alive_error = prompts.dead_or_alive_error
-site_picture = prompts.site_picture
-site_picture_error = prompts.site_picture_error
+sighting_picture = prompts.sighting_picture
+sighting_picture_error = prompts.sighting_picture_error
 
 # Rat evidence prompts.
 evidence_address = prompts.evidence_address
 evidence_address_error = prompts.evidence_address_error
+evidence_city = prompts.evidence_city
+evidence_city_error = prompts.evidence_city_error
+evidence_zipcode = prompts.evidence_zipcode
+evidence_zipcode_error = prompts.evidence_zipcode_error
 category = prompts.category
 category_error = prompts.category_error
 evidence_picture = prompts.evidence_picture
 evidence_picture_error = prompts.evidence_picture_error
 
 # SQL statements for inserting, deleting, and updating information.
-add_site_sql = config.add_site_sql
+add_sighting_sql = config.add_sighting_sql
 add_evidence_sql = config.add_evidence_sql
 
-update_site_street_sql = config.update_site_street_sql
-update_site_city_sql = config.update_site_city_sql
-update_site_zip_sql = config.update_site_zip_sql
-update_site_in_out_sql = config.update_site_in_out_sql
-update_site_dead_alive_sql = config.update_site_dead_alive_sql
-update_site_image_sql = config.update_site_image_sql
-update_site_finished_sql = config.update_site_finished_sql
-update_site_restart_sql = config.update_site_restart_sql
-update_site_mistake_sql = config.update_site_mistake_sql
+update_sighting_street_sql = config.update_sighting_street_sql
+update_sighting_city_sql = config.update_sighting_city_sql
+update_sighting_zip_sql = config.update_sighting_zip_sql
+update_sighting_in_out_sql = config.update_sighting_in_out_sql
+update_sighting_dead_alive_sql = config.update_sighting_dead_alive_sql
+update_sighting_image_sql = config.update_sighting_image_sql
+update_sighting_finished_sql = config.update_sighting_finished_sql
+update_sighting_restart_sql = config.update_sighting_restart_sql
+update_sighting_mistake_sql = config.update_sighting_mistake_sql
 
 update_evidence_street_sql = config.update_evidence_street_sql
 update_evidence_city_sql = config.update_evidence_city_sql
@@ -83,20 +86,27 @@ update_evidence_finished_sql = config.update_evidence_finished_sql
 update_evidence_restart_sql = config.update_evidence_restart_sql
 update_evidence_mistake_sql = config.update_evidence_mistake_sql
 
+# Function that returns the HTML
+# info page for RatWatch.
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
+
 # Function that provides instructions
 # to Twilio on how to respond to an
 # incoming SMS message.
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/sms', methods=['GET', 'POST'])
 def process_message():
 
     response = MessagingResponse()
     message = Message()
-    userInput = request.values.get('Body', None)
+    user_input = request.values.get('Body', None)
+    user_input_test = user_input.replace(' ', '').replace('\n', '')
     counter = session.get('counter', 0)
     case = session.get('case', 0)
     mistakes = session.get('mistakes', 0)
 
-    # Start of survey.
+    # Start of report.
     if (counter == 0):
         message.body(welcome)
         session['counter'] = counter + 1
@@ -107,19 +117,23 @@ def process_message():
     # If the user has already selected a case, then
     # the application continues.
     if (not case):
-        if (userInput == '1'):
+        if (user_input_test.upper() == 'RESTART'):
+            message.body(welcome)
+            response.append(message)
+            return str(response)
+        if (user_input_test == '1'):
             session['case'] = 1
             case = session.get('case', 0)
-            cursor.execute(add_site_sql)
+            cursor.execute(add_sighting_sql)
             session['row_id'] = cursor.lastrowid
             connection.commit()
-        elif (userInput == '2'):
+        elif (user_input_test == '2'):
             session['case'] = 2
             case = session.get('case', 0)
             cursor.execute(add_evidence_sql)
             session['row_id'] = cursor.lastrowid
             connection.commit()
-        elif (userInput == '3'):
+        elif (user_input_test == '3'):
             session['case'] = 3
             case = session.get('case', 0)
         else:
@@ -136,68 +150,71 @@ def process_message():
     # logic based on the case and the counter.
     if (case == 1):
         if (counter == 1):
-            message.body(site_address)
+            message.body(sighting_address)
             session['counter'] = counter + 1
         elif (counter == 2):
-            if (userInput.upper() == 'RESTART'):
-                cursor.execute(update_site_restart_sql, (1, session['row_id'],))
+            if (user_input_test.upper() == 'RESTART'):
+                cursor.execute(update_sighting_restart_sql, (1, session['row_id'],))
                 connection.commit()
                 session.clear()
-                message.body(restart_prompt)
+                session['counter'] = 1
+                message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif (userInput.replace(' ', '').isalnum()):
-                cursor.execute(update_site_street_sql, (userInput, session['row_id']))
+            elif (user_input_test.isalnum()):
+                cursor.execute(update_sighting_street_sql, (user_input, session['row_id']))
                 connection.commit()
-                message.body(city)
+                message.body(sighting_city)
                 session['counter'] = counter + 1
                 session['mistakes'] = 0
             else:
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
-                    cursor.execute(update_site_mistake_sql, (1, session['row_id']))
+                    cursor.execute(update_sighting_mistake_sql, (1, session['row_id']))
                     connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
                     response.append(message)
                     return str(response)
-                message.body(site_address_error)
+                message.body(sighting_address_error)
         elif (counter == 3):
-            if (userInput.upper() == 'RESTART'):
-                cursor.execute(update_site_restart_sql, (1, session['row_id']))
+            if (user_input_test.upper() == 'RESTART'):
+                cursor.execute(update_sighting_restart_sql, (1, session['row_id']))
                 connection.commit()
                 session.clear()
-                message.body(restart_prompt)
+                session['counter'] = 1
+                message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif (userInput.isalpha()):
-                cursor.execute(update_site_city_sql, (userInput, session['row_id']))
+            elif (user_input_test.isalpha()):
+                cursor.execute(update_sighting_city_sql, (user_input, session['row_id']))
                 connection.commit()
-                message.body(zipcode)
+                message.body(sighting_zipcode)
                 session['counter'] = counter + 1
                 session['mistakes'] = 0                
             else:
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
-                    cursor.execute(update_site_mistake_sql, (1, session['row_id']))
+                    cursor.execute(update_sighting_mistake_sql, (1, session['row_id']))
                     connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
                     response.append(message)
                     return str(response)
-                message.body(city_error)
+                message.body(sighting_city_error)
         elif (counter == 4):
-            if (userInput.upper() == 'RESTART'):
-                cursor.execute(update_site_restart_sql, (1, session['row_id']))
+            if (user_input_test.upper() == 'RESTART'):
+                cursor.execute(update_sighting_restart_sql, (1, session['row_id']))
                 connection.commit()
                 session.clear()
-                message.body(restart_prompt)
+                session['counter'] = 1
+                message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif (userInput.isdigit() and len(userInput) == 5):
-                cursor.execute(update_site_zip_sql, (userInput, session['row_id']))
+            elif (user_input_test.isdigit() and len(user_input_test) == 5):
+                cursor.execute(update_sighting_zip_sql, (user_input, session['row_id']))
                 connection.commit()
                 message.body(in_out)
                 session['counter'] = counter + 1
@@ -206,29 +223,30 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
-                    cursor.execute(update_site_mistake_sql, (1, session['row_id']))
+                    cursor.execute(update_sighting_mistake_sql, (1, session['row_id']))
                     connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
                     response.append(message)
                     return str(response)
-                message.body(zipcode_error)
+                message.body(sighting_zipcode_error)
         elif (counter == 5):
-            if (userInput.upper() == 'RESTART'):
-                cursor.execute(update_site_restart_sql, (1, session['row_id']))
+            if (user_input_test.upper() == 'RESTART'):
+                cursor.execute(update_sighting_restart_sql, (1, session['row_id']))
                 connection.commit()
                 session.clear()
-                message.body(restart_prompt)
+                session['counter'] = 1       
+                message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif userInput == '1':
-                cursor.execute(update_site_in_out_sql, (0, session['row_id']))
+            elif (user_input_test == '1'):
+                cursor.execute(update_sighting_in_out_sql, (0, session['row_id']))
                 connection.commit()
                 message.body(dead_or_alive)
                 session['counter'] = counter + 1
                 session['mistakes'] = 0
-            elif userInput == '2':
-                cursor.execute(update_site_in_out_sql, (1, session['row_id']))
+            elif (user_input_test == '2'):
+                cursor.execute(update_sighting_in_out_sql, (1, session['row_id']))
                 connection.commit()
                 message.body(dead_or_alive)
                 session['counter'] = counter + 1
@@ -237,7 +255,7 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
-                    cursor.execute(update_site_mistake_sql, (1, session['row_id']))
+                    cursor.execute(update_sighting_mistake_sql, (1, session['row_id']))
                     connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
@@ -245,32 +263,33 @@ def process_message():
                     return str(response)
                 message.body(in_out_error)
         elif (counter == 6):
-            if (userInput.upper() == 'RESTART'):
-                cursor.execute(update_site_restart_sql, (1, session['row_id']))
+            if (user_input_test.upper() == 'RESTART'):
+                cursor.execute(update_sighting_restart_sql, (1, session['row_id']))
                 connection.commit()
                 session.clear()
-                message.body(restart_prompt)
+                session['counter'] = 1
+                message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif userInput == '1':
-                cursor.execute(update_site_dead_alive_sql, (0, session['row_id']))
-                cursor.execute(update_site_finished_sql, (1, session['row_id']))
+            elif (user_input_test == '1'):
+                cursor.execute(update_sighting_dead_alive_sql, (0, session['row_id']))
+                cursor.execute(update_sighting_finished_sql, (1, session['row_id']))
                 connection.commit()
-                message.body(site_picture)
+                message.body(sighting_picture)
                 session['counter'] = counter + 1
                 session['mistakes'] = 0
-            elif userInput == '2':
-                cursor.execute(update_site_dead_alive_sql, (1, session['row_id']))
-                cursor.execute(update_site_finished_sql, (1, session['row_id']))
+            elif (user_input_test == '2'):
+                cursor.execute(update_sighting_dead_alive_sql, (1, session['row_id']))
+                cursor.execute(update_sighting_finished_sql, (1, session['row_id']))
                 connection.commit()
-                message.body(site_picture)
+                message.body(sighting_picture)
                 session['counter'] = counter + 1
                 session['mistakes'] = 0
             else:
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
-                    cursor.execute(update_site_mistake_sql, (1, session['row_id']))
+                    cursor.execute(update_sighting_mistake_sql, (1, session['row_id']))
                     connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
@@ -278,54 +297,56 @@ def process_message():
                     return str(response)
                 message.body(dead_or_alive_error)
         elif (counter == 7):
-            if (userInput.upper() == 'RESTART'):
-                cursor.execute(update_site_restart_sql, (1, session['row_id']))
+            if (user_input_test.upper() == 'RESTART'):
+                cursor.execute(update_sighting_restart_sql, (1, session['row_id']))
                 connection.commit()
                 session.clear()
-                message.body(restart_prompt)
+                session['counter'] = 1
+                message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif request.values['NumMedia'] != '0':
+            elif (request.values['NumMedia'] != '0'):
                 filename = request.values['MessageSid'] + '.jpg'
-                filepath = SITING_IMAGE_DOWNLOAD_DIRECTORY + filename
+                filepath = SIGHTING_IMAGE_DOWNLOAD_DIRECTORY + filename
                 with open(filepath, 'wb') as f:
                     image_url = request.values['MediaUrl0']
                     f.write(requests.get(image_url).content)
-                cursor.execute(update_site_image_sql, (filepath, session['row_id']))
+                cursor.execute(update_sighting_image_sql, (filepath, session['row_id']))
                 connection.commit()
                 session.clear()
-                message.body(survey_complete)
-            elif (userInput.upper() == 'DONE'):
+                message.body(report_complete)
+            elif (user_input_test.upper() == 'DONE'):
                 session.clear()
-                message.body(survey_complete)   
+                message.body(report_complete)   
             else:
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
-                    cursor.execute(update_site_mistake_sql, (1, session['row_id']))
+                    cursor.execute(update_sighting_mistake_sql, (1, session['row_id']))
                     connection.commit()
                     session.clear()
                     message.body(mistakes_prompt)
                     response.append(message)
                     return str(response)
-                message.body(site_picture_error)
+                message.body(sighting_picture_error)
 
     elif (case == 2):
         if (counter == 1):
             message.body(evidence_address)
             session['counter'] = counter + 1
         elif (counter == 2):
-            if (userInput.upper() == 'RESTART'):
+            if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_evidence_restart_sql, (1, session['row_id']))
                 connection.commit()
                 session.clear()
-                message.body(restart_prompt)
+                session['counter'] = 1
+                message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif (userInput.replace(' ', '').isalnum()):
-                cursor.execute(update_evidence_street_sql, (userInput, session['row_id']))
+            elif (user_input_test.isalnum()):
+                cursor.execute(update_evidence_street_sql, (user_input.replace('\n', ' '), session['row_id']))
                 connection.commit()
-                message.body(city)
+                message.body(evidence_city)
                 session['counter'] = counter + 1
                 session['mistakes'] = 0
             else:
@@ -340,17 +361,18 @@ def process_message():
                     return str(response)
                 message.body(evidence_address_error)
         elif (counter == 3):
-            if (userInput.upper() == 'RESTART'):
+            if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_evidence_restart_sql, (1, session['row_id']))
                 connection.commit()
                 session.clear()
-                message.body(restart_prompt)
+                session['counter'] = 1
+                message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif (userInput.isalpha()):
-                cursor.execute(update_evidence_city_sql, (userInput, session['row_id']))
+            elif (user_input_test.isalpha()):
+                cursor.execute(update_evidence_city_sql, (user_input, session['row_id']))
                 connection.commit()
-                message.body(zipcode)
+                message.body(evidence_zipcode)
                 session['counter'] = counter + 1
                 session['mistakes'] = 0
             else:
@@ -363,17 +385,18 @@ def process_message():
                     message.body(mistakes_prompt)
                     response.append(message)
                     return str(response)
-                message.body(city_error)
+                message.body(evidence_city_error)
         elif (counter == 4):
-            if (userInput.upper() == 'RESTART'):
+            if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_evidence_restart_sql, (1, session['row_id']))
                 connection.commit()
                 session.clear()
-                message.body(restart_prompt)
+                session['counter'] = 1
+                message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif (userInput.isdigit() and len(userInput) == 5):
-                cursor.execute(update_evidence_zip_sql, (userInput, session['row_id']))
+            elif (user_input_test.isdigit() and len(user_input_test) == 5):
+                cursor.execute(update_evidence_zip_sql, (user_input, session['row_id']))
                 connection.commit()
                 message.body(category)
                 session['counter'] = counter + 1
@@ -388,23 +411,24 @@ def process_message():
                     message.body(mistakes_prompt)
                     response.append(message)
                     return str(response)
-                message.body(zipcode_error)
+                message.body(evidence_zipcode_error)
         elif (counter == 5):
-            if (userInput.upper() == 'RESTART'):
+            if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_evidence_restart_sql, (1, session['row_id']))
                 connection.commit()
                 session.clear()
-                message.body(restart_prompt)
+                session['counter'] = 1
+                message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif userInput == '1':
+            elif (user_input_test == '1'):
                 cursor.execute(update_evidence_category_sql, (1, 0, session['row_id']))
                 cursor.execute(update_evidence_finished_sql, (1, session['row_id']))
                 connection.commit()
                 session['counter'] = counter + 1
                 session['mistakes'] = 0
                 message.body(evidence_picture)
-            elif userInput == '2':
+            elif (user_input_test == '2'):
                 cursor.execute(update_evidence_category_sql, (0, 1, session['row_id']))
                 cursor.execute(update_evidence_finished_sql, (1, session['row_id']))
                 connection.commit()
@@ -424,14 +448,15 @@ def process_message():
                 message.body(category_error)
 
         elif (counter == 6):
-            if (userInput.upper() == 'RESTART'):
+            if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_evidence_restart_sql, (1, session['row_id']))
                 connection.commit()
                 session.clear()
-                message.body(restart_prompt)
+                session['counter'] = 1
+                message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif request.values['NumMedia'] != '0':
+            elif (request.values['NumMedia'] != '0'):
                 filename = request.values['MessageSid'] + '.jpg'
                 filepath = EVIDENCE_IMAGE_DOWNLOAD_DIRECTORY + filename
                 with open(filepath, 'wb') as f:
@@ -440,10 +465,10 @@ def process_message():
                 cursor.execute(update_evidence_image_sql, (filepath, session['row_id']))
                 connection.commit()
                 session.clear()
-                message.body(survey_complete)
-            elif (userInput.upper() == 'DONE'):
+                message.body(report_complete)
+            elif (user_input_test.upper() == 'DONE'):
                 session.clear()
-                message.body(survey_complete)   
+                message.body(report_complete)   
             else:
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
@@ -457,7 +482,7 @@ def process_message():
                 message.body(evidence_picture_error)
 
     elif (case == 3):
-        message.body(prevention)
+        message.body(prevention_prompt)
         session.clear()
 
     response.append(message)
