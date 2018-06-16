@@ -25,6 +25,7 @@ except mysql.connector.Error:
 SIGHTING_IMAGE_DOWNLOAD_DIRECTORY = config.sighting_image_directory
 EVIDENCE_IMAGE_DOWNLOAD_DIRECTORY = config.evidence_image_directory
 SECRET_KEY = config.secret_key
+API_KEY = config.api_key
 app = Flask(__name__)
 app.config.from_object(__name__)
 
@@ -40,10 +41,6 @@ prevention_prompt = prompts.prevention_prompt
 # Rat sighting prompts.
 sighting_address = prompts.sighting_address
 sighting_address_error = prompts.sighting_address_error
-sighting_city = prompts.sighting_city
-sighting_city_error = prompts.sighting_city_error
-sighting_zipcode = prompts.sighting_zipcode
-sighting_zipcode_error = prompts.sighting_zipcode_error
 in_out = prompts.in_out
 in_out_error = prompts.in_out_error
 dead_or_alive = prompts.dead_or_alive
@@ -54,10 +51,6 @@ sighting_picture_error = prompts.sighting_picture_error
 # Rat evidence prompts.
 evidence_address = prompts.evidence_address
 evidence_address_error = prompts.evidence_address_error
-evidence_city = prompts.evidence_city
-evidence_city_error = prompts.evidence_city_error
-evidence_zipcode = prompts.evidence_zipcode
-evidence_zipcode_error = prompts.evidence_zipcode_error
 category = prompts.category
 category_error = prompts.category_error
 evidence_picture = prompts.evidence_picture
@@ -67,9 +60,7 @@ evidence_picture_error = prompts.evidence_picture_error
 add_sighting_sql = config.add_sighting_sql
 add_evidence_sql = config.add_evidence_sql
 
-update_sighting_street_sql = config.update_sighting_street_sql
-update_sighting_city_sql = config.update_sighting_city_sql
-update_sighting_zip_sql = config.update_sighting_zip_sql
+update_sighting_address_sql = config.update_sighting_address_sql
 update_sighting_in_out_sql = config.update_sighting_in_out_sql
 update_sighting_dead_alive_sql = config.update_sighting_dead_alive_sql
 update_sighting_image_sql = config.update_sighting_image_sql
@@ -77,14 +68,39 @@ update_sighting_finished_sql = config.update_sighting_finished_sql
 update_sighting_restart_sql = config.update_sighting_restart_sql
 update_sighting_mistake_sql = config.update_sighting_mistake_sql
 
-update_evidence_street_sql = config.update_evidence_street_sql
-update_evidence_city_sql = config.update_evidence_city_sql
-update_evidence_zip_sql = config.update_evidence_zip_sql
-update_evidence_category_sql =config.update_evidence_category_sql
+update_evidence_address_sql = config.update_evidence_address_sql
+update_evidence_category_sql = config.update_evidence_category_sql
 update_evidence_image_sql = config.update_evidence_image_sql
 update_evidence_finished_sql = config.update_evidence_finished_sql
 update_evidence_restart_sql = config.update_evidence_restart_sql
 update_evidence_mistake_sql = config.update_evidence_mistake_sql
+
+# Function that geocodes an address using
+# the Google Maps API.
+def geocode(address):
+    GOOGLE_MAPS_API_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
+    
+    parameters = {
+        'key': API_KEY,
+        'address': address
+    }
+
+    request = requests.get(GOOGLE_MAPS_API_URL, params=parameters)
+    response = request.json()
+    result = response['results']
+
+    lat = result[0]['geometry']['location']['lat']
+    lon = result[0]['geometry']['location']['lng']
+    address = result[0]['formatted_address']
+    city = ''
+    for item in result[0]['address_components']:
+        if item['long_name'] == 'Atlanta':
+            city = item['long_name']
+    
+    if (city == 'Atlanta'):
+        return lat, lon, address, city
+    else:
+        return None, None, None, None
 
 # Function that returns the HTML
 # info page for RatWatch.
@@ -162,11 +178,17 @@ def process_message():
                 response.append(message)
                 return str(response)
             elif (user_input_test.isalnum()):
-                cursor.execute(update_sighting_street_sql, (user_input, session['row_id']))
-                connection.commit()
-                message.body(sighting_city)
-                session['counter'] = counter + 1
-                session['mistakes'] = 0
+                lat, lon, address, city = geocode(user_input)
+                if (city == 'Atlanta'):
+                    cursor.execute(update_sighting_address_sql, (address, lat, lon, session['row_id']))
+                    connection.commit()
+                    message.body(in_out)
+                    session['counter'] = counter + 1
+                    session['mistakes'] = 0
+                else:
+                    message.body(sighting_address_error)
+                    response.append(message)
+                    return str(response)
             else:
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
@@ -179,58 +201,6 @@ def process_message():
                     return str(response)
                 message.body(sighting_address_error)
         elif (counter == 3):
-            if (user_input_test.upper() == 'RESTART'):
-                cursor.execute(update_sighting_restart_sql, (1, session['row_id']))
-                connection.commit()
-                session.clear()
-                session['counter'] = 1
-                message.body(welcome)
-                response.append(message)
-                return str(response)
-            elif (user_input_test.isalpha()):
-                cursor.execute(update_sighting_city_sql, (user_input, session['row_id']))
-                connection.commit()
-                message.body(sighting_zipcode)
-                session['counter'] = counter + 1
-                session['mistakes'] = 0                
-            else:
-                session['mistakes'] = mistakes + 1
-                mistakes = session['mistakes']
-                if (mistakes == 3):
-                    cursor.execute(update_sighting_mistake_sql, (1, session['row_id']))
-                    connection.commit()
-                    session.clear()
-                    message.body(mistakes_prompt)
-                    response.append(message)
-                    return str(response)
-                message.body(sighting_city_error)
-        elif (counter == 4):
-            if (user_input_test.upper() == 'RESTART'):
-                cursor.execute(update_sighting_restart_sql, (1, session['row_id']))
-                connection.commit()
-                session.clear()
-                session['counter'] = 1
-                message.body(welcome)
-                response.append(message)
-                return str(response)
-            elif (user_input_test.isdigit() and len(user_input_test) == 5):
-                cursor.execute(update_sighting_zip_sql, (user_input, session['row_id']))
-                connection.commit()
-                message.body(in_out)
-                session['counter'] = counter + 1
-                session['mistakes'] = 0
-            else:
-                session['mistakes'] = mistakes + 1
-                mistakes = session['mistakes']
-                if (mistakes == 3):
-                    cursor.execute(update_sighting_mistake_sql, (1, session['row_id']))
-                    connection.commit()
-                    session.clear()
-                    message.body(mistakes_prompt)
-                    response.append(message)
-                    return str(response)
-                message.body(sighting_zipcode_error)
-        elif (counter == 5):
             if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_sighting_restart_sql, (1, session['row_id']))
                 connection.commit()
@@ -262,7 +232,8 @@ def process_message():
                     response.append(message)
                     return str(response)
                 message.body(in_out_error)
-        elif (counter == 6):
+            
+        elif (counter == 4):
             if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_sighting_restart_sql, (1, session['row_id']))
                 connection.commit()
@@ -296,7 +267,8 @@ def process_message():
                     response.append(message)
                     return str(response)
                 message.body(dead_or_alive_error)
-        elif (counter == 7):
+            
+        elif (counter == 5):
             if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_sighting_restart_sql, (1, session['row_id']))
                 connection.commit()
@@ -328,7 +300,7 @@ def process_message():
                     message.body(mistakes_prompt)
                     response.append(message)
                     return str(response)
-                message.body(sighting_picture_error)
+                message.body(sighting_picture_error)           
 
     elif (case == 2):
         if (counter == 1):
@@ -344,11 +316,17 @@ def process_message():
                 response.append(message)
                 return str(response)
             elif (user_input_test.isalnum()):
-                cursor.execute(update_evidence_street_sql, (user_input.replace('\n', ' '), session['row_id']))
-                connection.commit()
-                message.body(evidence_city)
-                session['counter'] = counter + 1
-                session['mistakes'] = 0
+                lat, lon, address, city = geocode(user_input)
+                if (city == 'Atlanta'):
+                    cursor.execute(update_evidence_address_sql, (address, lat, lon, session['row_id']))
+                    connection.commit()
+                    message.body(category)
+                    session['counter'] = counter + 1
+                    session['mistakes'] = 0
+                else:
+                    message.body(evidence_address_error)
+                    response.append(message)
+                    return str(response)
             else:
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
@@ -361,58 +339,6 @@ def process_message():
                     return str(response)
                 message.body(evidence_address_error)
         elif (counter == 3):
-            if (user_input_test.upper() == 'RESTART'):
-                cursor.execute(update_evidence_restart_sql, (1, session['row_id']))
-                connection.commit()
-                session.clear()
-                session['counter'] = 1
-                message.body(welcome)
-                response.append(message)
-                return str(response)
-            elif (user_input_test.isalpha()):
-                cursor.execute(update_evidence_city_sql, (user_input, session['row_id']))
-                connection.commit()
-                message.body(evidence_zipcode)
-                session['counter'] = counter + 1
-                session['mistakes'] = 0
-            else:
-                session['mistakes'] = mistakes + 1
-                mistakes = session['mistakes']
-                if (mistakes == 3):
-                    cursor.execute(update_evidence_mistake_sql, (1, session['row_id']))
-                    connection.commit()
-                    session.clear()
-                    message.body(mistakes_prompt)
-                    response.append(message)
-                    return str(response)
-                message.body(evidence_city_error)
-        elif (counter == 4):
-            if (user_input_test.upper() == 'RESTART'):
-                cursor.execute(update_evidence_restart_sql, (1, session['row_id']))
-                connection.commit()
-                session.clear()
-                session['counter'] = 1
-                message.body(welcome)
-                response.append(message)
-                return str(response)
-            elif (user_input_test.isdigit() and len(user_input_test) == 5):
-                cursor.execute(update_evidence_zip_sql, (user_input, session['row_id']))
-                connection.commit()
-                message.body(category)
-                session['counter'] = counter + 1
-                session['mistakes'] = 0
-            else:
-                session['mistakes'] = mistakes + 1
-                mistakes = session['mistakes']
-                if (mistakes == 3):
-                    cursor.execute(update_evidence_mistake_sql, (1, session['row_id']))
-                    connection.commit()
-                    session.clear()
-                    message.body(mistakes_prompt)
-                    response.append(message)
-                    return str(response)
-                message.body(evidence_zipcode_error)
-        elif (counter == 5):
             if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_evidence_restart_sql, (1, session['row_id']))
                 connection.commit()
@@ -446,8 +372,8 @@ def process_message():
                     response.append(message)
                     return str(response)
                 message.body(category_error)
-
-        elif (counter == 6):
+            
+        elif (counter == 4):
             if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_evidence_restart_sql, (1, session['row_id']))
                 connection.commit()
@@ -479,7 +405,7 @@ def process_message():
                     message.body(mistakes_prompt)
                     response.append(message)
                     return str(response)
-                message.body(evidence_picture_error)
+                message.body(evidence_picture_error)            
 
     elif (case == 3):
         message.body(prevention_prompt)
