@@ -89,16 +89,16 @@ def geocode(address):
     response = request.json()
     result = response['results']
 
-    lat = result[0]['geometry']['location']['lat']
-    lon = result[0]['geometry']['location']['lng']
-    address = result[0]['formatted_address']
-    city = ''
-    for item in result[0]['address_components']:
-        if item['long_name'] == 'Atlanta':
-            city = item['long_name']
-    
-    if (city == 'Atlanta'):
-        return lat, lon, address, city
+    if (result):
+        lat = result[0]['geometry']['location']['lat']
+        lon = result[0]['geometry']['location']['lng']
+        address = result[0]['formatted_address']
+        city = ''
+        for item in result[0]['address_components']:
+            if item['long_name'] == 'Atlanta':
+                city = item['long_name']
+                return lat, lon, address, city            
+        return None, None, None, None
     else:
         return None, None, None, None
 
@@ -140,12 +140,16 @@ def process_message():
         if (user_input_test == '1'):
             session['case'] = 1
             case = session.get('case', 0)
+            session['mistakes'] = 0
+            mistakes = session.get('mistakes', 0)
             cursor.execute(add_sighting_sql)
             session['row_id'] = cursor.lastrowid
             connection.commit()
         elif (user_input_test == '2'):
             session['case'] = 2
             case = session.get('case', 0)
+            session['mistakes'] = 0
+            mistakes = session.get('mistakes', 0)
             cursor.execute(add_evidence_sql)
             session['row_id'] = cursor.lastrowid
             connection.commit()
@@ -169,6 +173,7 @@ def process_message():
             message.body(sighting_address)
             session['counter'] = counter + 1
         elif (counter == 2):
+            lat, lon, address, city = geocode(user_input.replace('\n', ' '))
             if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_sighting_restart_sql, (1, session['row_id'],))
                 connection.commit()
@@ -177,8 +182,7 @@ def process_message():
                 message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif (user_input_test.isalnum()):
-                lat, lon, address, city = geocode(user_input)
+            elif (lat != None and lon != None and address != None and city != None):
                 if (city == 'Atlanta'):
                     cursor.execute(update_sighting_address_sql, (address, lat, lon, session['row_id']))
                     connection.commit()
@@ -193,6 +197,7 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
+                    cursor.execute(update_sighting_address_sql, (user_input, 0, 0, session['row_id']))
                     cursor.execute(update_sighting_mistake_sql, (1, session['row_id']))
                     connection.commit()
                     session.clear()
@@ -307,6 +312,7 @@ def process_message():
             message.body(evidence_address)
             session['counter'] = counter + 1
         elif (counter == 2):
+            lat, lon, address, city = geocode(user_input.replace('\n', ' '))
             if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_evidence_restart_sql, (1, session['row_id']))
                 connection.commit()
@@ -315,8 +321,7 @@ def process_message():
                 message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif (user_input_test.isalnum()):
-                lat, lon, address, city = geocode(user_input)
+            elif (lat != None and lon != None and address != None and city != None):
                 if (city == 'Atlanta'):
                     cursor.execute(update_evidence_address_sql, (address, lat, lon, session['row_id']))
                     connection.commit()
@@ -331,6 +336,7 @@ def process_message():
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
                 if (mistakes == 3):
+                    cursor.execute(update_evidence_address_sql, (user_input, 0, 0, session['row_id']))
                     cursor.execute(update_evidence_mistake_sql, (1, session['row_id']))
                     connection.commit()
                     session.clear()

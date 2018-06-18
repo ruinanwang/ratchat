@@ -20,13 +20,13 @@ welcome_error = ('Please make sure you are entering a valid number. Please try a
 
 report_complete = ('You have completed the report. Thank you for your response! If you would like to make another report, please type RAT.')
 
-mistakes_prompt = ('You made too many mistakes, so we had to restart your report. To make another report, please type RAT.')
+mistakes_prompt = ('You made too many mistakes, so we had to end your report. To make another report, please type RAT.')
 
 # Rat sighting prompts.
-sighting_address = ('Question 1 of 4\n\nWhere did you see the rat?\nPlease type the closest address. For example: 559 English Ave NW Atlanta, GA 30318')
+sighting_address = ('Question 1 of 4\n\nWhere did you see the rat?\nPlease type the closest Atlanta address. For example: 559 English Ave NW Atlanta, GA 30318')
 
-sighting_address_error = ('Please make sure you are entering a valid address. Please try again. \n\n'
-+ 'Question 1 of 4\n\nWhere did you see the rat?\nPlease type the closest address. For example: 559 English Ave NW Atlanta, GA 30318')
+sighting_address_error = ('Please make sure you are entering a valid Atlanta address. Please try again. \n\n'
++ 'Question 1 of 4\n\nWhere did you see the rat?\nPlease type the closest Atlanta address. For example: 559 English Ave NW Atlanta, GA 30318')
 
 in_out = ('Question 2 of 4\n\nWas the rat inside or outside?\n1. Inside \n2. Outside \nType 1 or 2')
 
@@ -44,10 +44,10 @@ sighting_picture_error = ('Please make sure you are sending a valid picture. Ple
 + 'Question 4 of 4\n\nPlease send us a picture of the rat for further analysis. Or, you can type DONE to finish the report.')
 
 # Rat evidence prompts.
-evidence_address = ('Question 1 of 3\n\nWhere did you see the evidence?\nPlease type the closest address. For example: 559 English Ave NW Atlanta, GA 30318')
+evidence_address = ('Question 1 of 3\n\nWhere did you see the evidence?\nPlease type the closest Atlanta address. For example: 559 English Ave NW Atlanta, GA 30318')
 
-evidence_address_error = ('Please make sure you are entering a valid house number and street name. Please try again. \n\n'
-+ 'Question 1 of 3\n\nWhere did you see the evidence?\nPlease type the closest address. For example: 559 English Ave NW Atlanta, GA 30318')
+evidence_address_error = ('Please make sure you are entering a valid Atlanta address. Please try again. \n\n'
++ 'Question 1 of 3\n\nWhere did you see the evidence?\nPlease type the closest Atlanta address. For example: 559 English Ave NW Atlanta, GA 30318')
 
 category = ('Question 2 of 3\n\nWhat kind of evidence did you find?\n1. Rat droppings\n2. Chewed things \nType 1 or 2')
 
