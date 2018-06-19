@@ -169,9 +169,11 @@ def process_message():
     # Decision tree that carries out the appropriate 
     # logic based on the case and the counter.
     if (case == 1):
+
         if (counter == 1):
             message.body(sighting_address)
             session['counter'] = counter + 1
+    
         elif (counter == 2):
             lat, lon, address, city = geocode(user_input.replace('\n', ' '))
             if (user_input_test.upper() == 'RESTART'):
@@ -205,6 +207,7 @@ def process_message():
                     response.append(message)
                     return str(response)
                 message.body(sighting_address_error)
+
         elif (counter == 3):
             if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_sighting_restart_sql, (1, session['row_id']))
@@ -308,9 +311,11 @@ def process_message():
                 message.body(sighting_picture_error)           
 
     elif (case == 2):
+
         if (counter == 1):
             message.body(evidence_address)
             session['counter'] = counter + 1
+
         elif (counter == 2):
             lat, lon, address, city = geocode(user_input.replace('\n', ' '))
             if (user_input_test.upper() == 'RESTART'):
@@ -344,6 +349,7 @@ def process_message():
                     response.append(message)
                     return str(response)
                 message.body(evidence_address_error)
+
         elif (counter == 3):
             if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_evidence_restart_sql, (1, session['row_id']))
