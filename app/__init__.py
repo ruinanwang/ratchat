@@ -94,7 +94,7 @@ def geocode(address):
         lon = result[0]['geometry']['location']['lng']
         address = result[0]['formatted_address']
         for item in result[0]['address_components']:
-            if (item['long_name'] == 'Fulton County' or item['long_name'] == 'Dekalb County'):
+            if (item['long_name'] == 'Fulton County' or item['long_name'] == 'DeKalb County'):
                 return lat, lon, address
         return None, None, None
     else:
