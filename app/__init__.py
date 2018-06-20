@@ -93,14 +93,12 @@ def geocode(address):
         lat = result[0]['geometry']['location']['lat']
         lon = result[0]['geometry']['location']['lng']
         address = result[0]['formatted_address']
-        city = ''
         for item in result[0]['address_components']:
-            if item['long_name'] == 'Atlanta':
-                city = item['long_name']
-                return lat, lon, address, city            
-        return None, None, None, None
+            if (item['long_name'] == 'Fulton County' or item['long_name'] == 'Dekalb County'):
+                return lat, lon, address
+        return None, None, None
     else:
-        return None, None, None, None
+        return None, None, None
 
 # Function that returns the HTML
 # info page for RatWatch.
@@ -175,7 +173,7 @@ def process_message():
             session['counter'] = counter + 1
     
         elif (counter == 2):
-            lat, lon, address, city = geocode(user_input.replace('\n', ' '))
+            lat, lon, address = geocode(user_input.replace('\n', ' '))
             if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_sighting_restart_sql, (1, session['row_id'],))
                 connection.commit()
@@ -184,17 +182,12 @@ def process_message():
                 message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif (lat != None and lon != None and address != None and city != None):
-                if (city == 'Atlanta'):
-                    cursor.execute(update_sighting_address_sql, (address, lat, lon, session['row_id']))
-                    connection.commit()
-                    message.body(in_out)
-                    session['counter'] = counter + 1
-                    session['mistakes'] = 0
-                else:
-                    message.body(sighting_address_error)
-                    response.append(message)
-                    return str(response)
+            elif (lat != None and lon != None and address != None):
+                cursor.execute(update_sighting_address_sql, (address, lat, lon, session['row_id']))
+                connection.commit()
+                message.body(in_out)
+                session['counter'] = counter + 1
+                session['mistakes'] = 0
             else:
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
@@ -317,7 +310,7 @@ def process_message():
             session['counter'] = counter + 1
 
         elif (counter == 2):
-            lat, lon, address, city = geocode(user_input.replace('\n', ' '))
+            lat, lon, address = geocode(user_input.replace('\n', ' '))
             if (user_input_test.upper() == 'RESTART'):
                 cursor.execute(update_evidence_restart_sql, (1, session['row_id']))
                 connection.commit()
@@ -326,17 +319,12 @@ def process_message():
                 message.body(welcome)
                 response.append(message)
                 return str(response)
-            elif (lat != None and lon != None and address != None and city != None):
-                if (city == 'Atlanta'):
-                    cursor.execute(update_evidence_address_sql, (address, lat, lon, session['row_id']))
-                    connection.commit()
-                    message.body(category)
-                    session['counter'] = counter + 1
-                    session['mistakes'] = 0
-                else:
-                    message.body(evidence_address_error)
-                    response.append(message)
-                    return str(response)
+            elif (lat != None and lon != None and address != None):
+                cursor.execute(update_evidence_address_sql, (address, lat, lon, session['row_id']))
+                connection.commit()
+                message.body(category)
+                session['counter'] = counter + 1
+                session['mistakes'] = 0
             else:
                 session['mistakes'] = mistakes + 1
                 mistakes = session['mistakes']
