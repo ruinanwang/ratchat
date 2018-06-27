@@ -1,5 +1,5 @@
 
-/* DATABASE FILE
+/* ratwatch_db.sql
   This file automatically creates the 'ratwatch_db' 
   database, along with its associated tables.
 */
