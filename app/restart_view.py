@@ -1,6 +1,6 @@
 
 from . import app, db, config, prompts
-from flask import Flask, request, session, redirect
+from flask import session
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 
 @app.route('/restart', methods=['GET'])

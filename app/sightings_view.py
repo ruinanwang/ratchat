@@ -2,7 +2,7 @@
 import requests
 from . import app, db, geocoder
 from . import config, prompts
-from flask import Flask, request, session, redirect, url_for
+from flask import request, session, redirect, url_for
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 
 @app.route('/sighting', methods=['GET'])
