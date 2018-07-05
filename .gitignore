@@ -1,5 +1,6 @@
 
-\.DS_Store
+.DS_Store
+.vscode
+__pycache__
 /venv
-/app/__pycache__
 /app/config.py
