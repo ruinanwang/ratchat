@@ -12,28 +12,28 @@ def mistakes():
 
     if case == 1:
         if counter == 2:
-            db.query(config.update_sighting_address_sql, (None, 0, 0, session['row_id']))
+            db.query(config.db_credentials, config.update_sighting_address_sql, (None, 0, 0, session['row_id']))
             db.query(config.update_sighting_mistake_sql, (1, session['row_id']))
             session.clear()
             message.body(prompts.mistakes_prompt)
             response.append(message)
             return str(response)
         else:
-            db.query(config.update_sighting_mistake_sql, (1, session['row_id']))
+            db.query(config.db_credentials, config.update_sighting_mistake_sql, (1, session['row_id']))
             session.clear()
             message.body(prompts.mistakes_prompt)
             response.append(message)
             return str(response)
     elif case == 2:
         if counter == 2:
-            db.query(config.update_evidence_address_sql, (None, 0, 0, session['row_id']))
-            db.query(config.update_evidence_mistake_sql, (1, session['row_id']))
+            db.query(config.db_credentials, config.update_evidence_address_sql, (None, 0, 0, session['row_id']))
+            db.query(config.db_credentials, config.update_evidence_mistake_sql, (1, session['row_id']))
             session.clear()
             message.body(prompts.mistakes_prompt)
             response.append(message)
             return str(response)
         else:
-            db.query(config.update_evidence_mistake_sql, (1, session['row_id']))
+            db.query(config.db_credentials, config.update_evidence_mistake_sql, (1, session['row_id']))
             session.clear()
             message.body(prompts.mistakes_prompt)
             response.append(message)

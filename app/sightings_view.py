@@ -23,7 +23,7 @@ def sighting():
             response.redirect(url=url_for('restart'), method='GET')
             return str(response)
         elif lat != None and lon != None and address != None:
-            db.query(config.update_sighting_address_sql, (address, lat, lon, session['row_id']))
+            db.query(config.db_credentials, config.update_sighting_address_sql, (address, lat, lon, session['row_id']))
             message.body(prompts.in_out)
             session['counter'] = counter + 1
             session['mistakes'] = 0
@@ -40,12 +40,12 @@ def sighting():
             response.redirect(url=url_for('restart'), method='GET')
             return str(response)
         elif user_input_test == '1':
-            db.query(config.update_sighting_in_out_sql, (0, session['row_id']))
+            db.query(config.db_credentials, config.update_sighting_in_out_sql, (0, session['row_id']))
             message.body(prompts.dead_or_alive)
             session['counter'] = counter + 1
             session['mistakes'] = 0
         elif user_input_test == '2':
-            db.query(config.update_sighting_in_out_sql, (1, session['row_id']))
+            db.query(config.db_credentials, config.update_sighting_in_out_sql, (1, session['row_id']))
             message.body(prompts.dead_or_alive)
             session['counter'] = counter + 1
             session['mistakes'] = 0
@@ -62,12 +62,12 @@ def sighting():
             response.redirect(url=url_for('restart'), method='GET')
             return str(response)
         elif user_input_test == '1':
-            db.query(config.update_sighting_dead_alive_sql, (0, session['row_id']))
+            db.query(config.db_credentials, config.update_sighting_dead_alive_sql, (0, session['row_id']))
             message.body(prompts.sighting_picture)
             session['counter'] = counter + 1
             session['mistakes'] = 0
         elif user_input_test == '2':
-            db.query(config.update_sighting_dead_alive_sql, (1, session['row_id']))
+            db.query(config.db_credentials, config.update_sighting_dead_alive_sql, (1, session['row_id']))
             message.body(prompts.sighting_picture)
             session['counter'] = counter + 1
             session['mistakes'] = 0
@@ -89,12 +89,12 @@ def sighting():
             with open(filepath, 'wb') as f:
                 image_url = request.values['MediaUrl0']
                 f.write(requests.get(image_url).content)
-            db.query(config.update_sighting_image_sql, (filepath, session['row_id']))
-            db.query(config.update_sighting_finished_sql, (1, session['row_id']))
+            db.query(config.db_credentials, config.update_sighting_image_sql, (filepath, session['row_id']))
+            db.query(config.db_credentials, config.update_sighting_finished_sql, (1, session['row_id']))
             session.clear()
             message.body(prompts.report_complete)
         elif user_input_test.upper() == 'DONE':
-            db.query(config.update_sighting_finished_sql, (1, session['row_id']))
+            db.query(config.db_credentials, config.update_sighting_finished_sql, (1, session['row_id']))
             session.clear()
             message.body(prompts.report_complete)   
         else:

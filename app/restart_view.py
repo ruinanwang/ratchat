@@ -11,14 +11,14 @@ def restart():
     case = session.get('case', 0)
 
     if case == 1:
-        db.query(config.update_sighting_restart_sql, (1, session['row_id']))
+        db.query(config.db_credentials, config.update_sighting_restart_sql, (1, session['row_id']))
         session.clear()
         session['counter'] = 1
         message.body(prompts.welcome)
         response.append(message)
         return str(response)
     elif case == 2:
-        db.query(config.update_evidence_restart_sql, (1, session['row_id']))
+        db.query(config.db_credentials, config.update_evidence_restart_sql, (1, session['row_id']))
         session.clear()
         session['counter'] = 1
         message.body(prompts.welcome)

@@ -4,7 +4,7 @@ from flask import Flask
 
 SECRET_KEY = config.secret_key
 geocoder = geocoder.Geocoder(config.api_key)
-db = db_handler.DB(config.db_credentials)
+db = db_handler.DB()
 app = Flask(__name__)
 app.config.from_object(__name__)
 from . import views

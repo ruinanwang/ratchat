@@ -3,22 +3,20 @@ import mysql.connector
 from mysql.connector import errorcode
 
 class DB(object):
-    def __init__(self, db_credentials):
+    def __init__(self):
+        self.row_id = 1
+    
+    def query(self, db_credentials, query, params=None):
         try:
-            self.connection = mysql.connector.connect(**db_credentials)
-            self.cursor = self.connection.cursor()
-            self.row_id = 1
+            connection = mysql.connector.connect(**db_credentials)
+            cursor = connection.cursor()
+            cursor.execute(query, params)
+            connection.commit()
+            if query[:6] == 'INSERT':
+                self.row_id = cursor.lastrowid
+            connection.close()
         except mysql.connector.Error:
             raise
-    
-    def query(self, query, params=None):
-        self.cursor.execute(query, params)
-        self.connection.commit()
-        if query[:6] == 'INSERT':
-            self.row_id = self.cursor.lastrowid
-    
-    def close(self):
-        self.connection.close()
 
     def getRowId(self):
         return self.row_id

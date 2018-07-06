@@ -27,14 +27,14 @@ def sms():
         if user_input_test == '1':
             session['case'] = 1
             session['mistakes'] = 0
-            db.query(config.add_sighting_sql)
+            db.query(config.db_credentials, config.add_sighting_sql)
             session['row_id'] = db.getRowId()
             response.redirect(url=url_for('sighting'), method='GET')
             return str(response)
         elif user_input_test == '2':
             session['case'] = 2
             session['mistakes'] = 0
-            db.query(config.add_evidence_sql)
+            db.query(config.db_credentials, config.add_evidence_sql)
             session['row_id'] = db.getRowId()
             response.redirect(url=url_for('evidence'), method='GET')
             return str(response)
