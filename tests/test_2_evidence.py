@@ -10,7 +10,7 @@ class TestEvidence(BaseTest):
             with app.session_transaction() as session:
                 session['counter'] = 1
                 session['case'] = 2
-            response = self.app.get('/evidence', data={'Body':'test'}, follow_redirects=True)
+            response = self.app.get('/sms/evidence', data={'Body':'test'}, follow_redirects=True)
             self.assertEqual(response.status_code, 200)
 
     def test_2_address(self):
@@ -18,8 +18,8 @@ class TestEvidence(BaseTest):
             with app.session_transaction() as session:
                 session['counter'] = 2
                 session['case'] = 2
-                session['row_id'] = self.db.getRowId()
-            response = self.app.get('/evidence', data={'Body':'120 North Ave NW Atlanta, GA'}, follow_redirects=True)
+                session['row_id'] = 1
+            response = self.app.get('/sms/evidence', data={'Body':'120 North Ave NW Atlanta, GA'}, follow_redirects=True)
             self.assertEqual(response.status_code, 200)
     
     def test_3_chewed_or_droppings(self):
@@ -27,8 +27,8 @@ class TestEvidence(BaseTest):
             with app.session_transaction() as session:
                 session['counter'] = 3
                 session['case'] = 2
-                session['row_id'] = self.db.getRowId()
-            response = self.app.get('/evidence', data={'Body':'1'}, follow_redirects=True)
+                session['row_id'] = 1
+            response = self.app.get('/sms/evidence', data={'Body':'1'}, follow_redirects=True)
             self.assertEqual(response.status_code, 200)
 
     def test_4_done(self):
@@ -36,7 +36,7 @@ class TestEvidence(BaseTest):
             with app.session_transaction() as session:
                 session['counter'] = 4
                 session['case'] = 2
-                session['row_id'] = self.db.getRowId()
-            response = self.app.get('/evidence', data={'Body':'Done', 'NumMedia': 0}, follow_redirects=True)
+                session['row_id'] = 1
+            response = self.app.get('/sms/evidence', data={'Body':'Done', 'NumMedia': 0}, follow_redirects=True)
             print(response.data)
             self.assertEqual(response.status_code, 200)

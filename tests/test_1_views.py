@@ -11,15 +11,15 @@ class TestViews(BaseTest):
     
     def test_2_message_retrieval(self):
         with self.app as app:
-            response = app.post('/sms', data={'Body':'RAT'}, follow_redirects=True)
-            self.assertEqual(flask.session['counter'], 1)  
+            response = app.get('/sms', data={'Body':'RAT'}, follow_redirects=True)
+            self.assertEqual(flask.session['counter'], 1) 
             self.assertEqual(response.status_code, 200)
     
     def test_3_case_sighting(self):
         with self.app as app:
             with app.session_transaction() as session:
                 session['counter'] = 1
-            response = self.app.post('/sms', data={'Body':'1'}, follow_redirects=True)
+            response = self.app.get('/sms', data={'Body':'1'}, follow_redirects=True)
             self.assertIn('case', flask.session)
             self.assertEqual(response.status_code, 200)
 
@@ -27,7 +27,7 @@ class TestViews(BaseTest):
         with self.app as app:
             with app.session_transaction() as session:
                 session['counter'] = 1
-            response = self.app.post('/sms', data={'Body':'2'}, follow_redirects=True)
+            response = self.app.get('/sms', data={'Body':'2'}, follow_redirects=True)
             self.assertIn('case', flask.session)
             self.assertEqual(response.status_code, 200)
 
@@ -36,7 +36,7 @@ class TestViews(BaseTest):
             with app.session_transaction() as session:
                 session['counter'] = 1
                 session['case'] = 1
-            response = self.app.post('/sms', follow_redirects=True)
+            response = self.app.get('/sms', follow_redirects=True)
             self.assertIn('case', flask.session)
             self.assertIn('counter', flask.session)
             self.assertEqual(response.status_code, 200)

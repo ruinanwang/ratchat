@@ -11,8 +11,8 @@ class TestInfo(BaseTest):
                 session['counter'] = 2
                 session['case'] = 2
                 session['mistakes'] = 0
-                session['row_id'] = self.db.getRowId()
-            response = self.app.get('/info', follow_redirects=True)
+                session['row_id'] = 1
+            response = self.app.get('/sms/info', follow_redirects=True)
             self.assertNotIn('counter', flask.session)
             self.assertNotIn('case', flask.session)
             self.assertNotIn('mistakes', flask.session)
