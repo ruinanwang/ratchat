@@ -1,4 +1,3 @@
-
 /* Stylesheet for RatWatch Website */
 
 /* Color Scheme
@@ -51,8 +50,8 @@ body {
 }
 
 #navbarNavAltMarkup .navbar-nav .nav-item {
-  font-size: 18px;
-  margin: 0 20px;
+  font-size: 16px;
+  margin: 0 12px;
   color: #04343F;
   letter-spacing: 2px;
 }
@@ -70,6 +69,7 @@ body {
   position: relative;
   overflow: hidden;
 }
+
 .hvr-underline-from-center:before {
   content: "";
   position: absolute;
@@ -87,8 +87,8 @@ body {
   transition-timing-function: ease-out;
 }
 
-.hvr-underline-from-center:hover:before, 
-.hvr-underline-from-center:focus:before, 
+.hvr-underline-from-center:hover:before,
+.hvr-underline-from-center:focus:before,
 .hvr-underline-from-center:active:before {
   left: 0;
   right: 0;
@@ -173,11 +173,11 @@ main .subsection:hover {
   padding-left: 20px;
 }
 
-#stats {
-  padding-left: 24px;
+#gallery {
+  padding-left: 18px;
 }
 
-#maps {
+#stats {
   padding-left: 24px;
 }
 
@@ -189,6 +189,10 @@ main .subsection:hover {
   width: 82px;
 }
 
+#gallerytitleborder {
+  width: 78px;
+}
+
 .titleborder {
   position: absolute;
   border-right: 1px solid #FF4D4D;
@@ -198,12 +202,40 @@ main .subsection:hover {
   margin-left: 35%;
 }
 
-#map { 
-  height: 400px;
+#map {
+  height: 500px;
+  width: 100%;
 }
 
 h6 {
   color: #F5F5F5;
+}
+
+.row:nth-child(2) {
+  margin-top: 18px;
+}
+
+.card {
+  height: 250px;
+  text-align: center;
+}
+
+.card-title {
+  color: #FF4D4D;
+}
+
+.card-body {
+  color: #04343F;
+}
+
+.carousel {
+  width: 100%;
+  background-color: #04343F
+}
+
+.carousel-inner .carousel-item img {
+  max-height: 400px;
+  width: auto;
 }
 
 /* Footer */
@@ -220,94 +252,92 @@ h6 {
 /* Media Queries */
 
 @media only screen and (max-width: 1091px) {
-
   .titleborder {
     width: px;
   }
-
 }
 
 @media only screen and (max-width: 991px) {
-
-  #navbarNavAltMarkup .navbar-nav .nav-item{
+  #navbarNavAltMarkup .navbar-nav .nav-item {
     text-align: center;
     padding-top: 12px;
     width: 74px;
     margin-left: auto;
     margin-right: auto;
   }
-
   #navbarNavAltMarkup .navbar-nav {
     margin: 0 auto;
   }
-
   .titleborder {
     width: 70px;
   }
-
   #contacttitleborder {
     width: 90px;
   }
-
-  .bodycolumn hr {
-    margin-left: 24px;    
+  #gallerytitleborder {
+    width: 86px;
   }
-
+  .bodycolumn hr {
+    margin-left: 24px;
+  }
 }
 
 @media only screen and (max-width: 767px) {
-
   .titleborder {
     width: 80px;
   }
-
   #contacttitleborder {
     width: 98px;
   }
-
-  .bodycolumn hr {
-    margin-left: 48px;    
+  #gallerytitleborder {
+    width: 94px;
   }
-
+  .bodycolumn hr {
+    margin-left: 48px;
+  }
   #contactsection .titlerow .bodycolumn hr {
     margin-left: 64px;
   }
-
   .bodyrow .bodycolumn {
     padding-left: 48px;
   }
-
+  .col-md-4:nth-child(2) {
+    margin-top: 18px;
+    margin-bottom: 18px;
+  }
+  .row:nth-child(2) {
+    margin-top: 18px;
+    margin-bottom: 18px;
+  }
+  .card {
+    height: 175px;
+  }
 }
 
 @media only screen and (max-width: 500px) {
-
   .titleborder {
     width: 85px;
   }
-
   #contacttitleborder {
     width: 108px;
   }
-
-  .bodycolumn hr {
-    margin-left: 64px;    
+  #gallerytitleborder {
+    width: 102px;
   }
-
+  .bodycolumn hr {
+    margin-left: 64px;
+  }
   #contactsection .titlerow .bodycolumn hr {
     margin-left: 78px;
   }
-
 }
 
 @media only screen and (max-width: 466px) {
-
   .navbar a span {
     font-size: 26px;
   }
-
   .navbar img {
     height: 30px;
     width: 55px;
   }
-
 }

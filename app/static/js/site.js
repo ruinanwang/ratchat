@@ -27,4 +27,4 @@ $(document).ready(function() {
   });
 });
 
-console.log(appConfig.data)
+console.log(info.numbers)

@@ -1,11 +1,13 @@
 
 import requests
-from . import app, db, geocoder
-from . import config, prompts
+import config
+from sms import prompts
+from db_handler import DB
 from flask import Flask, request, session, redirect, url_for
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 
-@app.route('/evidence', methods=['GET'])
+db = DB()
+
 def evidence():
     response = MessagingResponse()
     message = Message()
@@ -18,9 +20,9 @@ def evidence():
         message.body(prompts.evidence_address)
         session['counter'] = counter + 1
     elif counter == 2:
-        lat, lon, address = geocoder.geocode(user_input.replace('\n', ' '))
+        # lat, lon, address = geocoder.geocode(user_input.replace('\n', ' '))
         if user_input_test.upper() == 'RESTART':
-            response.redirect(url=url_for('restart'), method='GET')
+            response.redirect(url=url_for('sms.restart'), method='GET')
             return str(response)
         elif lat != None and lon != None and address != None:
             db.query(config.db_credentials, config.update_evidence_address_sql, (address, lat, lon, session['row_id']))
@@ -31,13 +33,13 @@ def evidence():
             session['mistakes'] = mistakes + 1
             mistakes = session['mistakes']
             if mistakes == 3:
-                response.redirect(url=url_for('mistakes'), method='GET')
+                response.redirect(url=url_for('sms.mistakes'), method='GET')
                 return str(response)
             message.body(prompts.evidence_address_error)
 
     elif counter == 3:
         if user_input_test.upper() == 'RESTART':
-            response.redirect(url=url_for('restart'), method='GET')
+            response.redirect(url=url_for('sms.restart'), method='GET')
             return str(response)
         elif user_input_test == '1':
             db.query(config.db_credentials, config.update_evidence_category_sql, (1, 0, session['row_id']))
@@ -53,13 +55,13 @@ def evidence():
             session['mistakes'] = mistakes + 1
             mistakes = session['mistakes']
             if mistakes == 3:
-                response.redirect(url=url_for('mistakes'), method='GET')
+                response.redirect(url=url_for('sms.mistakes'), method='GET')
                 return str(response)
             message.body(prompts.category_error)
         
     elif counter == 4:
         if user_input_test.upper() == 'RESTART':
-            response.redirect(url=url_for('restart'), method='GET')
+            response.redirect(url=url_for('sms.restart'), method='GET')
             return str(response)
         elif request.values['NumMedia'] != '0':
             filename = request.values['MessageSid'] + '.jpg'
@@ -79,7 +81,7 @@ def evidence():
             session['mistakes'] = mistakes + 1
             mistakes = session['mistakes']
             if mistakes == 3:
-                response.redirect(url=url_for('mistakes'), method='GET')
+                response.redirect(url=url_for('sms.mistakes'), method='GET')
                 return str(response)
             message.body(prompts.evidence_picture_error)            
 

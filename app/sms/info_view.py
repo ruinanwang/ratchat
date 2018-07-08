@@ -1,10 +1,8 @@
 
-from . import app
-from . import prompts
+from sms import prompts
 from flask import session
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 
-@app.route('/info', methods=['GET'])
 def info():
     response = MessagingResponse()
     message = Message()

@@ -1,9 +1,12 @@
 
-from . import app, db, config, prompts
+from db_handler import DB
+from sms import prompts
+import config
 from flask import session
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 
-@app.route('/mistakes', methods=['GET'])
+db = DB()
+
 def mistakes():
     response = MessagingResponse()
     message = Message()
