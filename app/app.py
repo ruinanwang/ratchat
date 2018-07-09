@@ -2,34 +2,30 @@
 import config
 import prompts
 import requests
-import mysql.connector
 from db_handler import DB
 from geocoder import Geocoder
-from mysql.connector import errorcode
 from flask import Flask, request, session, render_template, url_for
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 
+db = DB()
 app = Flask(__name__)
 app.secret_key = config.secret_key
 app.config.from_object(__name__)
-db = DB()
 geocoder = Geocoder(config.api_key)
 
 @app.route('/', methods=['GET'])
 def root():
-    return render_template('index.html', data=[1,2,3,4])
+    return render_template('index.html')
 
 @app.route('/sms', methods=['POST'])
 def sms():
     response = MessagingResponse()
     message = Message()
-    user_input = str(request.values.get('Body', None))
+    user_input = request.values.get('Body', None)
     user_input_test = user_input.replace(' ', '').replace('\n', '')
     counter = session.get('counter', 0)
     case = session.get('case', 0)
-    mistakes = session.get('mistakes', 0)
 
-    # Start of report.
     if not counter:
         message.body(prompts.welcome)
         session['counter'] = 1
@@ -41,29 +37,21 @@ def sms():
             return str(response)
         if user_input_test == '1':
             session['case'] = 1
-            session['mistakes'] = 0
             db.query(config.db_credentials, config.add_sighting_sql)
             session['row_id'] = db.getRowId()
             response.redirect(url=url_for('sighting'), method='POST')
             return str(response)
         elif user_input_test == '2':
             session['case'] = 2
-            session['mistakes'] = 0
             db.query(config.db_credentials, config.add_evidence_sql)
             session['row_id'] = db.getRowId()
             response.redirect(url=url_for('evidence'), method='POST')
             return str(response)
         elif user_input_test == '3':
             session['case'] = 3
-            session['mistakes'] = 0
             response.redirect(url=url_for('info'), method='GET')
             return str(response)
         else:
-            session['mistakes'] = mistakes + 1
-            mistakes = session['mistakes']
-            if mistakes == 3:
-                response.redirect(url=url_for('mistakes'), method='GET')
-                return str(response)
             message.body(prompts.welcome_error)
             response.append(message)
             return str(response)
@@ -266,7 +254,6 @@ def evidence():
 def info():
     response = MessagingResponse()
     message = Message()
-
     session.clear()
     message.body(prompts.prevention_prompt)
     response.append(message)
@@ -302,13 +289,14 @@ def restart():
 def mistakes():
     response = MessagingResponse()
     message = Message()
+    user_input = request.values.get('Body', None)
     counter = session.get('counter', 0)
     case = session.get('case', 0)
 
     if case == 1:
         if counter == 2:
-            db.query(config.db_credentials, config.update_sighting_address_sql, (None, 0, 0, session['row_id']))
-            db.query(config.update_sighting_mistake_sql, (1, session['row_id']))
+            db.query(config.db_credentials, config.update_sighting_address_sql, (user_input, 0, 0, session['row_id']))
+            db.query(config.db_credentials, config.update_sighting_mistake_sql, (1, session['row_id']))
             session.clear()
             message.body(prompts.mistakes_prompt)
             response.append(message)
@@ -321,7 +309,7 @@ def mistakes():
             return str(response)
     elif case == 2:
         if counter == 2:
-            db.query(config.db_credentials, config.update_evidence_address_sql, (None, 0, 0, session['row_id']))
+            db.query(config.db_credentials, config.update_evidence_address_sql, (user_input, 0, 0, session['row_id']))
             db.query(config.db_credentials, config.update_evidence_mistake_sql, (1, session['row_id']))
             session.clear()
             message.body(prompts.mistakes_prompt)

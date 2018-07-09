@@ -54,7 +54,7 @@ class Test2Views(TestBase):
             with app.session_transaction() as session:
                 session['counter'] = 1
                 session['case'] = 1
-            response = self.app.post('/sms', follow_redirects=True)
+            response = self.app.post('/sms', data={'Body':'test'}, follow_redirects=True)
             self.assertIn('case', flask.session)
             self.assertIn('counter', flask.session)
             self.assertEqual(response.status_code, 200)
