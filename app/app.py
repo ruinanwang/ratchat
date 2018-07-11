@@ -15,7 +15,7 @@ geocoder = Geocoder(config.api_key)
 
 @app.route('/', methods=['GET'])
 def root():
-    return render_template('index.html')
+    return render_template('index.html', data=[1,2,3 ])
 
 @app.route('/sms', methods=['POST'])
 def sms():
