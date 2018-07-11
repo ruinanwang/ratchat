@@ -1,4 +1,5 @@
 
+// map.js 
 
 var mymap = L.map('mapsection').setView([33.7590, -84.3880], 13);
 

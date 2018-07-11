@@ -5,10 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link href="https://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet">
+    <meta name="description" content="Welcome to RatWatch, a simple data collection tool for reporting rat sightings and evidence within the city of Atlanta.">
+    <meta name="keywords" content="rat, watch, rats, rodent, rodents, georgia, tech, institute, of, technology, computer, science, school, public, design, workshop">
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
         crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
         crossorigin="">
     <title>RatWatch</title>
@@ -159,7 +161,6 @@
                             </div>
                         </div>
                         <div class="row">
-
                             <div class="col-md-4">
                                 <div class="card">
                                     <div class="card-body">
@@ -198,7 +199,6 @@
                 </div>
             </div>
         </div>
-
         <div class="container section" id="contactsection">
             <div class="subsection">
                 <div class="row titlerow">
@@ -243,7 +243,7 @@
             data: '{{data|tojson}}'
         }
     </script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/site.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 
 </html>
