@@ -17,6 +17,6 @@ CREATE TABLE `reports` (
   `finished` tinyint(1) DEFAULT 0,
   `made_mistake` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

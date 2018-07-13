@@ -40,6 +40,12 @@ class Test2Sms(TestBase):
             self.assertEqual(flask.session['counter'], 1) 
             self.assertEqual(response.status_code, 200)
 
+    def test_4_too_many_images(self):
+        with self.app as app:
+            response = app.post('/sms', data={'NumMedia': 2}, follow_redirects=True)
+            self.assertNotIn('counter', flask.session) 
+            self.assertEqual(response.status_code, 200)
+
 class Test3Address(TestBase):
 
     def test_1_address(self):
@@ -48,6 +54,12 @@ class Test3Address(TestBase):
                 session['row_id'] = self.db.getRowId()
             response = app.post('/sms/address', data={'Body':'120 North Ave NW Atlanta, GA'}, follow_redirects=True)
             self.assertEqual(flask.session['counter'], 2) 
+            self.assertEqual(response.status_code, 200)
+
+    def test_2_address_no_number(self):
+        with self.app as app:
+            response = app.post('/sms/address', data={'Body':'North Ave NW Atlanta, GA'}, follow_redirects=True)
+            self.assertNotIn('counter', flask.session) 
             self.assertEqual(response.status_code, 200)
 
 class Test4Options(TestBase):
@@ -116,11 +128,22 @@ class Test4Options(TestBase):
             self.assertEqual(response.status_code, 200)
     
 class Test5Mistake(TestBase):
-    def test_1_mistakes(self):
+    def test_1_address_mistakes(self):
         with self.app as app:
             with app.session_transaction() as session:
+                session['counter'] = 1
                 session['row_id'] = self.db.getRowId()
-            response = app.get('/sms/mistakes', follow_redirects=True)
+            response = app.post('/sms/mistakes', data={'Body':'test'}, follow_redirects=True)
+            self.assertNotIn('counter', flask.session)
+            self.assertNotIn('mistakes', flask.session)
+            self.assertEqual(response.status_code, 200)
+
+    def test_2_options_mistakes(self):
+        with self.app as app:
+            with app.session_transaction() as session:
+                session['counter'] = 2
+                session['row_id'] = self.db.getRowId()
+            response = app.post('/sms/mistakes', data={'Body':'test'}, follow_redirects=True)
             self.assertNotIn('counter', flask.session)
             self.assertNotIn('mistakes', flask.session)
             self.assertEqual(response.status_code, 200)
