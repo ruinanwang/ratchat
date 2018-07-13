@@ -15,16 +15,21 @@ geocoder = Geocoder(config.api_key)
 
 @app.route('/', methods=['GET'])
 def root():
-    return render_template('index.html')
+    return render_template('index.html', data=[2,3])
 
 @app.route('/sms', methods=['POST'])
 def sms():
     response = MessagingResponse()
     message = Message()
     counter = session.get('counter', 0)
+    num_images = eval(request.values['NumMedia'])
 
     if not counter:
-        if request.values['NumMedia'] != '0':
+        if num_images != 0:
+            if  num_images > 1:
+                message.body(prompts.too_many_images)
+                response.append(message)
+                return str(response)
             filename = request.values['MessageSid'] + '.jpg'
             filepath = config.image_directory + filename
             with open(filepath, 'wb') as f:
@@ -32,7 +37,6 @@ def sms():
                 f.write(requests.get(image_url).content)
             db.query(config.db_credentials, config.insert_report)
             session['row_id'] = db.getRowId()
-
             db.query(config.db_credentials, config.update_image, (filepath, session['row_id']))
             session['counter'] = 1
             message.body(prompts.address_image)
@@ -56,10 +60,15 @@ def address():
     response = MessagingResponse()
     message = Message()
     user_input = request.values.get('Body', None).replace('\n', ' ')
+    user_input_test = user_input.replace(' ', '')
     mistakes = session.get('mistakes', 0)
-
     lat, lon, address = geocoder.geocode(user_input)
-    if lat != None and lon != None and address != None:
+
+    if not user_input_test[0].isnumeric():
+        message.body(prompts.no_address_number)
+        response.append(message)
+        return str(response)
+    elif lat != None and lon != None and address != None:
         db.query(config.db_credentials, config.update_address, (address, lat, lon, session['row_id']))
         session['counter'] = 2
         session['mistakes'] = 0
@@ -67,7 +76,7 @@ def address():
     else:
         session['mistakes'] = mistakes + 1
         if session['mistakes'] == 3:
-            response.redirect(url=url_for('mistakes'), method='GET')
+            response.redirect(url=url_for('mistakes'), method='POST')
             return str(response)
         message.body(prompts.address_error)  
 
@@ -112,14 +121,14 @@ def options():
     else:
         session['mistakes'] = mistakes + 1
         if session['mistakes'] == 3:
-            response.redirect(url=url_for('mistakes'), method='GET')
+            response.redirect(url=url_for('mistakes'), method='POST')
             return str(response)
         message.body(prompts.option_error)        
 
     response.append(message)
     return str(response)
 
-@app.route('/sms/mistakes', methods=['GET'])
+@app.route('/sms/mistakes', methods=['POST'])
 def mistakes():
     response = MessagingResponse()
     message = Message()
@@ -127,10 +136,10 @@ def mistakes():
     user_input = request.values.get('Body', None)
 
     if counter == 1:
-        db.query(config.db_credentials, config.update_mistakes_address, (user_input, 0, 0, 1, session['row_id']))
+        db.query(config.db_credentials, config.update_mistakes_address, (user_input, 1, session['row_id']))
     elif counter == 2:
         db.query(config.db_credentials, config.update_mistakes_options, (user_input, 1, session['row_id']))
-        
+
     session.clear()
     message.body(prompts.mistakes)
     response.append(message)
