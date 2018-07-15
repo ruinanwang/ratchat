@@ -51,7 +51,7 @@ class Test3Address(TestBase):
     def test_1_address(self):
         with self.app as app:
             with app.session_transaction() as session:
-                session['row_id'] = self.db.getRowId()
+                session['row_id'] = self.db.get_row_id()
             response = app.post('/sms/address', data={'Body':'120 North Ave NW Atlanta, GA'}, follow_redirects=True)
             self.assertEqual(flask.session['counter'], 2) 
             self.assertEqual(response.status_code, 200)
@@ -73,7 +73,7 @@ class Test4Options(TestBase):
     def test_1_outside_alive(self):
         with self.app as app:
             with app.session_transaction() as session:
-                session['row_id'] = self.db.getRowId()
+                session['row_id'] = self.db.get_row_id()
             response = app.post('/sms/options', data={'Body':'A'}, follow_redirects=True)
             self.assertNotIn('counter', flask.session)
             self.assertNotIn('mistakes', flask.session)
@@ -82,7 +82,7 @@ class Test4Options(TestBase):
     def test_2_inside_alive(self):
         with self.app as app:
             with app.session_transaction() as session:
-                session['row_id'] = self.db.getRowId()
+                session['row_id'] = self.db.get_row_id()
             response = app.post('/sms/options', data={'Body':'B'}, follow_redirects=True)
             self.assertNotIn('counter', flask.session)
             self.assertNotIn('mistakes', flask.session)
@@ -91,7 +91,7 @@ class Test4Options(TestBase):
     def test_3_outside_dead(self):
         with self.app as app:
             with app.session_transaction() as session:
-                session['row_id'] = self.db.getRowId()
+                session['row_id'] = self.db.get_row_id()
             response = app.post('/sms/options', data={'Body':'C'}, follow_redirects=True)
             self.assertNotIn('counter', flask.session)
             self.assertNotIn('mistakes', flask.session)
@@ -100,7 +100,7 @@ class Test4Options(TestBase):
     def test_4_inside_dead(self):
         with self.app as app:
             with app.session_transaction() as session:
-                session['row_id'] = self.db.getRowId()
+                session['row_id'] = self.db.get_row_id()
             response = app.post('/sms/options', data={'Body':'D'}, follow_redirects=True)
             self.assertNotIn('counter', flask.session)
             self.assertNotIn('mistakes', flask.session)
@@ -109,7 +109,7 @@ class Test4Options(TestBase):
     def test_5_chewed(self):
         with self.app as app:
             with app.session_transaction() as session:
-                session['row_id'] = self.db.getRowId()
+                session['row_id'] = self.db.get_row_id()
             response = app.post('/sms/options', data={'Body':'E'}, follow_redirects=True)
             self.assertNotIn('counter', flask.session)
             self.assertNotIn('mistakes', flask.session)
@@ -118,7 +118,7 @@ class Test4Options(TestBase):
     def test_6_droppings(self):
         with self.app as app:
             with app.session_transaction() as session:
-                session['row_id'] = self.db.getRowId()
+                session['row_id'] = self.db.get_row_id()
             response = app.post('/sms/options', data={'Body':'F'}, follow_redirects=True)
             self.assertNotIn('counter', flask.session)
             self.assertNotIn('mistakes', flask.session)
@@ -127,7 +127,7 @@ class Test4Options(TestBase):
     def test_7_hole(self):
         with self.app as app:
             with app.session_transaction() as session:
-                session['row_id'] = self.db.getRowId()
+                session['row_id'] = self.db.get_row_id()
             response = app.post('/sms/options', data={'Body':'G'}, follow_redirects=True)
             self.assertNotIn('counter', flask.session)
             self.assertNotIn('mistakes', flask.session)
