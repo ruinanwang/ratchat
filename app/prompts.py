@@ -20,13 +20,15 @@ too_many_images = ('Welcome to RatWatch!'
 + ' image per report. Please only text one'
 + ' image for each report you make. Thank you!')
 
-address_error = ('Please make sure you are texting'
-+ ' a valid Atlanta address. Please try again.')
+address_error = ('Sorry, we didn\'t recognize that'
++ ' address. Please double check it to make sure it\'s'
++ ' right and text it again. If you\'re sure it\'s right,'
++ ' text YES.')
 
-no_address_number = ('Please make sure you are texting'
-+ ' a house number along with the street name. We need'
-+ ' this to accurately locate the evidence/rat. Please'
-+ ' try again.')
+partial_address = ('Please make sure you are texting'
++ ' a house number and street name. We need this'
++ ' information to accurately locate the rat/evidence.' 
++ ' Please try again.')
 
 options = ('Great! Now just text one of the letters next'
 + '  to the description of what you found/saw:\n\n'

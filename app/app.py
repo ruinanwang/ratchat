@@ -4,6 +4,7 @@ import prompts
 import requests
 from db_handler import DB
 from geocoder import Geocoder
+from datetime import timedelta
 from flask import Flask, request, session, render_template, url_for
 from twilio.twiml.messaging_response import Body, Media, Message, MessagingResponse
 
@@ -11,6 +12,7 @@ db = DB()
 app = Flask(__name__)
 app.secret_key = config.secret_key
 app.config.from_object(__name__)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
 geocoder = Geocoder(config.api_key)
 
 @app.route('/', methods=['GET'])
@@ -19,6 +21,7 @@ def root():
 
 @app.route('/sms', methods=['POST'])
 def sms():
+    session.permanent = True
     response = MessagingResponse()
     message = Message()
     counter = session.get('counter', 0)
@@ -35,13 +38,16 @@ def sms():
             with open(filepath, 'wb') as f:
                 image_url = request.values['MediaUrl0']
                 f.write(requests.get(image_url).content)
-            db.query(config.db_credentials, config.insert_report)
+            db.query(config.db_credentials, config.insert_report_original)
+            db.query(config.db_credentials, config.insert_report_altered)
             session['row_id'] = db.getRowId()
-            db.query(config.db_credentials, config.update_image, (filepath, session['row_id']))
+            db.query(config.db_credentials, config.update_image_original, (filepath, session['row_id']))
+            db.query(config.db_credentials, config.update_image_altered, (filepath, session['row_id']))
             session['counter'] = 1
             message.body(prompts.address_image)
         else:
-            db.query(config.db_credentials, config.insert_report)
+            db.query(config.db_credentials, config.insert_report_original)
+            db.query(config.db_credentials, config.insert_report_altered)
             session['row_id'] = db.getRowId()
             session['counter'] = 1
             message.body(prompts.address)
@@ -61,23 +67,22 @@ def address():
     message = Message()
     user_input = request.values.get('Body', None).replace('\n', ' ')
     user_input_test = user_input.replace(' ', '')
-    mistakes = session.get('mistakes', 0)
     lat, lon, address = geocoder.geocode(user_input)
 
-    if not user_input_test[0].isnumeric():
-        message.body(prompts.no_address_number)
-        response.append(message)
-        return str(response)
-    elif lat != None and lon != None and address != None:
-        db.query(config.db_credentials, config.update_address, (address, lat, lon, session['row_id']))
+    if user_input_test.upper() == 'YES' and 'address' in session:
+        db.query(config.db_credentials, config.update_address_original, (session['address'], None, None, session['row_id']))
+        db.query(config.db_credentials, config.update_address_altered, (session['address'], None, None, session['row_id']))
         session['counter'] = 2
-        session['mistakes'] = 0
+        message.body(prompts.options)
+    elif user_input_test.isnumeric() or user_input_test.isalpha():
+        message.body(prompts.partial_address)
+    elif lat != None and lon != None and address != None:
+        db.query(config.db_credentials, config.update_address_original, (address, lat, lon, session['row_id']))
+        db.query(config.db_credentials, config.update_address_altered, (address, lat, lon, session['row_id']))
+        session['counter'] = 2
         message.body(prompts.options)
     else:
-        session['mistakes'] = mistakes + 1
-        if session['mistakes'] == 3:
-            response.redirect(url=url_for('mistakes'), method='POST')
-            return str(response)
+        session['address'] = user_input
         message.body(prompts.address_error)  
 
     response.append(message)
@@ -88,59 +93,46 @@ def options():
     response = MessagingResponse()
     message = Message()
     user_input = request.values.get('Body', None).replace(' ', '').replace('\n', '').upper()
-    mistakes = session.get('mistakes', 0) 
 
     if user_input == 'A':
-        db.query(config.db_credentials, config.update_sighting, ('sighting', 'outside', 'alive', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_sighting_original, ('sighting', 'outside', 'alive', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_sighting_altered, ('sighting', 'outside', 'alive', 1, session['row_id']))
         session.clear()
         message.body(prompts.done)
     elif user_input == 'B':
-        db.query(config.db_credentials, config.update_sighting, ('sighting', 'inside', 'alive', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_sighting_original, ('sighting', 'inside', 'alive', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_sighting_altered, ('sighting', 'inside', 'alive', 1, session['row_id']))
         session.clear()
         message.body(prompts.done)
     elif user_input == 'C':
-        db.query(config.db_credentials, config.update_sighting, ('sighting', 'outside', 'dead', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_sighting_original, ('sighting', 'outside', 'dead', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_sighting_altered, ('sighting', 'outside', 'dead', 1, session['row_id']))
         session.clear()
         message.body(prompts.done)
     elif user_input == 'D':
-        db.query(config.db_credentials, config.update_sighting, ('sighting', 'inside', 'dead', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_sighting_original, ('sighting', 'inside', 'dead', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_sighting_altered, ('sighting', 'inside', 'dead', 1, session['row_id']))
         session.clear()
         message.body(prompts.done)
     elif user_input == 'E':
-        db.query(config.db_credentials, config.update_evidence, ('evidence', 'chewed', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_evidence_original, ('evidence', 'chewed', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_evidence_altered, ('evidence', 'chewed', 1, session['row_id']))
         session.clear()
         message.body(prompts.done)
     elif user_input == 'F':
-        db.query(config.db_credentials, config.update_evidence, ('evidence', 'droppings', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_evidence_original, ('evidence', 'droppings', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_evidence_altered, ('evidence', 'droppings', 1, session['row_id']))
         session.clear()
         message.body(prompts.done)
     elif user_input == 'G':
-        db.query(config.db_credentials, config.update_evidence, ('evidence', 'hole', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_evidence_original, ('evidence', 'hole', 1, session['row_id']))
+        db.query(config.db_credentials, config.update_evidence_altered, ('evidence', 'hole', 1, session['row_id']))
         session.clear()
         message.body(prompts.done)
     else:
-        session['mistakes'] = mistakes + 1
-        if session['mistakes'] == 3:
-            response.redirect(url=url_for('mistakes'), method='POST')
-            return str(response)
+        db.query(config.db_credentials, config.update_evidence_original, (user_input, None, 0, session['row_id']))
+        db.query(config.db_credentials, config.update_evidence_altered, (user_input, None, 0, session['row_id']))
         message.body(prompts.option_error)        
 
-    response.append(message)
-    return str(response)
-
-@app.route('/sms/mistakes', methods=['POST'])
-def mistakes():
-    response = MessagingResponse()
-    message = Message()
-    counter = session.get('counter', 0)
-    user_input = request.values.get('Body', None)
-
-    if counter == 1:
-        db.query(config.db_credentials, config.update_mistakes_address, (user_input, 1, session['row_id']))
-    elif counter == 2:
-        db.query(config.db_credentials, config.update_mistakes_options, (user_input, 1, session['row_id']))
-
-    session.clear()
-    message.body(prompts.mistakes)
     response.append(message)
     return str(response)
