@@ -2,7 +2,7 @@
 // app.js
 
 // Function that makes scrolling smooth when clicking
-// on anchor tages.
+// on page links.
 
 $(document).ready(function() {
 
@@ -22,4 +22,3 @@ $(document).ready(function() {
   $('.carousel').carousel({interval: false});
 
 });
-

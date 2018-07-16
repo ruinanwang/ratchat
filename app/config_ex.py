@@ -21,14 +21,11 @@ secret_key = 'secretkey'
 api_key = 'api_key'
 
 # SQL statements.
-insert_report_original = "INSERT INTO original_reports VALUES();"
-update_image_original = "UPDATE original_reports SET image=%s WHERE id=%s;"
-update_address_original = "UPDATE original_reports SET address=%s, lat=%s, lon=%s WHERE id=%s;"
-update_sighting_original = "UPDATE original_reports SET report_type=%s, out_in=%s, dead_alive=%s, finished=%s WHERE id=%s;"
-update_evidence_original = "UPDATE original_reports SET report_type=%s, chew_drop_hole=%s, finished=%s WHERE id=%s;"
-
-insert_report_altered = "INSERT INTO altered_reports VALUES();"
-update_image_altered = "UPDATE altered_reports SET image=%s WHERE id=%s;"
-update_address_altered = "UPDATE altered_reports SET address=%s, lat=%s, lon=%s WHERE id=%s;"
-update_sighting_altered = "UPDATE altered_reports SET report_type=%s, out_in=%s, dead_alive=%s, finished=%s WHERE id=%s;"
-update_evidence_altered = "UPDATE altered_reports SET report_type=%s, chew_drop_hole=%s, finished=%s WHERE id=%s;"
+select_all_records = ("SELECT time, geocoded_address, lat, lon, report_type, out_in,"
+                      + " dead_alive, chew_drop_hole FROM reports WHERE"
+                      + " lat IS NOT NULL AND lon IS NOT NULL;")
+insert_report = "INSERT INTO reports VALUES();"
+update_image = "UPDATE reports SET image=%s WHERE id=%s;"
+update_address = "UPDATE reports SET original_address=%s, geocoded_address=%s, lat=%s, lon=%s, geocoded=%s WHERE id=%s;"
+update_sighting = "UPDATE reports SET report_type=%s, out_in=%s, dead_alive=%s, finished=%s WHERE id=%s;"
+update_evidence = "UPDATE reports SET report_type=%s, chew_drop_hole=%s, finished=%s WHERE id=%s;"
