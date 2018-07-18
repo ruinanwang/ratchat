@@ -20,7 +20,7 @@ class DB(object):
                 self.records = []
                 for (time, geocoded_address, lat, lon, report_type, out_in, dead_alive, chew_drop_hole) in cursor:
                     record = {}
-                    record['time'] = time
+                    record['time'] = time.isoformat(' ')
                     record['address'] = geocoded_address
                     record['lat'] = lat
                     record['lon'] = lon

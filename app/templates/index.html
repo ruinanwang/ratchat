@@ -10,9 +10,10 @@
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
         crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
         crossorigin="">
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <link href="https://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet">
     <title>RatWatch</title>
 </head>
 
@@ -81,22 +82,25 @@
                         <div class="carousel slide" data-interval="false">
                             <div class="carousel-inner">
                                 <div class="carousel-item active">
-                                    <img src="{{url_for('static', filename='img/rat1.jpg')}}" class="img-fluid" alt="Los Angeles">
+                                    <img src="{{url_for('static', filename='img/warning.jpg')}}" class="img-fluid" alt="warning">
                                 </div>
                                 <div class="carousel-item">
-                                    <img src="{{url_for('static', filename='img/rat2.jpg')}}" class="img-fluid" alt="Chicago">
+                                    <img src="{{url_for('static', filename='img/rat1.jpg')}}" class="img-fluid" alt="rat 1">
                                 </div>
                                 <div class="carousel-item">
-                                    <img src="{{url_for('static', filename='img/rat3.jpg')}}" class="img-fluid" alt="New York">
+                                    <img src="{{url_for('static', filename='img/rat2.jpg')}}" class="img-fluid" alt="rat 2">
                                 </div>
                                 <div class="carousel-item">
-                                    <img src="{{url_for('static', filename='img/rat4.jpg')}}" class="img-fluid" alt="New York">
+                                    <img src="{{url_for('static', filename='img/rat3.jpg')}}" class="img-fluid" alt="rat 3">
                                 </div>
                                 <div class="carousel-item">
-                                    <img src="{{url_for('static', filename='img/rat5.jpg')}}" class="img-fluid" alt="New York">
+                                    <img src="{{url_for('static', filename='img/rat4.jpg')}}" class="img-fluid" alt="rat 4">
                                 </div>
                                 <div class="carousel-item">
-                                    <img src="{{url_for('static', filename='img/rat6.jpg')}}" class="img-fluid" alt="New York">
+                                    <img src="{{url_for('static', filename='img/rat5.jpg')}}" class="img-fluid" alt="rat 5">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{{url_for('static', filename='img/rat6.jpg')}}" class="img-fluid" alt="rat 6">
                                 </div>
                             </div>
                             <a class="carousel-control-prev" data-slide="prev" data-target=".carousel">
@@ -128,20 +132,28 @@
                             <div class="col-md-4">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h1 id="sightingreports">0</h1>
+                                        <div class="container">
+                                            <hr>
+                                            <h1 id="sightingreports">0</h1>
+                                            <hr>
+                                        </div>
                                     </div>
                                     <div class="card-footer">
-                                        <h4 class="card-text">Sighting reports</h4>
+                                        <h4 class="card-text">Sighting Reports</h4>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h1 id="evidencereports">0</h1>
+                                        <div class="container">
+                                            <hr>
+                                            <h1 id="evidencereports">0</h1>
+                                            <hr>
+                                        </div>
                                     </div>
                                     <div class="card-footer">
-                                        <h4 class="card-text">Evidence reports</h4>
+                                        <h4 class="card-text">Evidence Reports</h4>
                                     </div>
                                 </div>
                             </div>
@@ -150,12 +162,14 @@
                                     <div class="card-body">
                                         <div class="container">
                                             <h5 id="sightingaddress">English Ave, Atlanta, GA 30318</h5>
+                                            <hr>
                                             <h5 id="sightinglocation">Outside</h5>
+                                            <hr>
                                             <h5 id="sightingdeadoralive">Dead</h5>
                                         </div>
                                     </div>
                                     <div class="card-footer">
-                                        <h4 class="card-text">Most recent rat</h4>
+                                        <h4 class="card-text">Most Recent Rat</h4>
                                     </div>
                                 </div>
                             </div>
@@ -164,20 +178,28 @@
                             <div class="col-md-4">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h1 id="deadrats">0</h1>
+                                        <div class="container">
+                                            <hr>
+                                            <h1 id="deadrats">0</h1>
+                                            <hr>
+                                        </div>
                                     </div>
                                     <div class="card-footer">
-                                        <h4 class="card-text">Dead rats reported</h4>
+                                        <h4 class="card-text">Dead Rats Reported</h4>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h1 id="liverats">0</h1>
+                                        <div class="container">
+                                            <hr>
+                                            <h1 id="liverats">0</h1>
+                                            <hr>
+                                        </div>
                                     </div>
                                     <div class="card-footer">
-                                        <h4 class="card-text">Live rats reported</h4>
+                                        <h4 class="card-text">Live Rats Reported</h4>
                                     </div>
                                 </div>
                             </div>
@@ -186,11 +208,12 @@
                                     <div class="card-body">
                                         <div class="container">
                                             <h5 id="evidenceaddress">English Ave, Atlanta, GA 30318</h5>
+                                            <hr>
                                             <h5 id="evidencetype">Droppings</h5>
                                         </div>
                                     </div>
                                     <div class="card-footer">
-                                        <h4 class="card-text">Most recent evidence</h4>
+                                        <h4 class="card-text">Most Recent Evidence</h4>
                                     </div>
                                 </div>
                             </div>
@@ -230,18 +253,20 @@
         </div>
     </footer>
 
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js" integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+        crossorigin=""></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
         crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
         crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js" integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
-        crossorigin=""></script>
-    <script type="text/javascript">
-        var data = JSON.parse('{{data|tojson}}')
-    </script>
     <script type="text/javascript" src="{{url_for('static', filename='js/leaflet-heat.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/slider-control.min.js')}}"></script>
     <script type="text/javascript" src="{{url_for('static', filename='js/app.js')}}"></script>
+    <script type="text/javascript">
+        var data = mergeSort(JSON.parse('{{data|tojson}}'));
+    </script>
     <script type="text/javascript" src="{{url_for('static', filename='js/map.js')}}"></script>
 </body>
 

@@ -235,10 +235,33 @@ main .img-fluid {
   width: 100%;
 }
 
+.legend {
+  line-height: 18px;
+  color: #6a6a6a;
+  background: #fff;
+  padding: 12px 12px;
+  border-radius: 8px;
+  font-size: 16px;
+
+}
+
+.legend i {
+  width: 18px;
+  height: 18px;
+  float: left;
+  margin-right: 8px;
+  opacity: 0.7;
+}
+
+.legend div {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
 /* Stats Cards */
 
 .card {
-  height: 250px;
+  height: 325px;
   text-align: center;
   margin: 6px 0;
 }
@@ -246,7 +269,7 @@ main .img-fluid {
 .card-body h1 {
   color: #FF4D4D;
   margin: 0 auto;
-  font-size: 84px;
+  font-size: 108px;
   font-weight: 800;
 }
 
@@ -345,7 +368,7 @@ main .img-fluid {
     margin-bottom: 18px;
   }
   .card {
-    height: 220px;
+    height: 275px;
   }
 }
 
