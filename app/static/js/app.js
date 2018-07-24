@@ -2,7 +2,7 @@
 // app.js
 
 // Function that makes scrolling smooth when clicking
-// on page links.
+// on links.
 
 $(document).ready(function() {
 
@@ -23,17 +23,15 @@ $(document).ready(function() {
 
 });
 
-// Merge Sort Function
-// Split the array into halves and merge them recursively 
+// Merge Sort Functions
 function mergeSort (arr) {
   if (arr.length === 1) {
-    // return once we hit an array with a single item
     return arr
   }
 
-  const middle = Math.floor(arr.length / 2) // get the middle item of the array rounded down
-  const left = arr.slice(0, middle) // items on the left side
-  const right = arr.slice(middle) // items on the right side
+  const middle = Math.floor(arr.length / 2)
+  const left = arr.slice(0, middle)
+  const right = arr.slice(middle)
 
   return merge(
     mergeSort(left),
@@ -41,7 +39,6 @@ function mergeSort (arr) {
   )
 }
 
-// compare the arrays item by item and return the concatenated result
 function merge (left, right) {
   let result = []
   let indexLeft = 0

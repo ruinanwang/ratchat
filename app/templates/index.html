@@ -7,14 +7,18 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="description" content="Welcome to RatWatch, a simple data collection tool for reporting rat sightings and evidence within the city of Atlanta.">
     <meta name="keywords" content="rat, watch, rats, rodent, rodents, georgia, tech, institute, of, technology, computer, science, school, public, design, workshop">
+    <link rel="icon" type="image/png" href="{{url_for('static', filename='img/rat.png')}}">    
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB"
         crossorigin="anonymous">
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
         crossorigin="">
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
     <link href="https://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet">
     <title>RatWatch</title>
+    <!--[if lt IE 9]>
+	    <script src="bower_components/html5shiv/dist/html5shiv.js"></script>
+    <![endif]-->
 </head>
 
 <body>
@@ -32,6 +36,7 @@
                 <a class="nav-item nav-link hvr-underline-from-center" href="#aboutsection">About</a>
                 <a class="nav-item nav-link hvr-underline-from-center" href="#gallerysection">Gallery</a>
                 <a class="nav-item nav-link hvr-underline-from-center" href="#mapsection">Map</a>
+                <a class="nav-item nav-link hvr-underline-from-center" href="#modelsection">Model</a>
                 <a class="nav-item nav-link hvr-underline-from-center" href="#statssection">Stats</a>
                 <a class="nav-item nav-link hvr-underline-from-center" href="#contactsection">Contact</a>
             </div>
@@ -45,30 +50,24 @@
         <div class="container section" id="aboutsection">
             <div class="subsection">
                 <div class="row titlerow">
-                    <div class="col-2 titlecolumn">
-                        <div class="titleborder"></div>
-                        <h5 class="titleabs" id="about">About</h5>
-                    </div>
-                    <div class="col-10 bodycolumn">
-                        <hr>
+                    <div class="col-2">
+                        <div class="titleborder" id="abouttitleborder"></div>
+                        <h5 class="titleabs">About</h5>
                     </div>
                 </div>
                 <div class="row bodyrow">
-                    <div class="col-md-2 titlecolumn"></div>
-                    <div class="col-md-10 bodycolumn">
+                    <div class="container">
                         <p>
-                            In 2017 an Atlanta resident approached us with a concern about rats in her 
-                            neighborhood — there were rats dead and alive, always around, and no one 
-                            seemed to be doing much about them.  Inspired by a project from the University 
-                            of Michigan called <a href="https://seelio.com/w/2pxo/rat-chat" target="blank">Rat Chat</a>
-                            we began developing the RatWatch project in Atlanta.
+                            In 2017, an Atlanta resident approached us with a concern about rats in her neighborhood — there were rats dead and alive,
+                            always around, and no one seemed to be doing much about them. Inspired by a project from the
+                            University of Michigan called
+                            <a id="ratchat" href="https://seelio.com/w/2pxo/rat-chat" target="blank">Rat Chat</a>, we began developing the RatWatch project in Atlanta.
                         </p>
                         <p>
-                            The RatWatch project combines resident-reported data with mapping and modeling to 
-                            document rat issues in Atlanta.  The project includes an SMS system for text or 
-                            image based reporting of rat sitings and evidence, a model of likely rat infestations 
-                            in Atlanta based upon code violation and housing data, and a series for maps representing 
-                            both the resident reports and rat suitability models.
+                            The RatWatch project combines resident-reported data with mapping and modeling to document rat issues in Atlanta. The project
+                            includes an SMS system for text or image based reporting of rat sitings and evidence, a model
+                            of likely rat infestations in Atlanta based upon code violation and housing data, and a series
+                            of maps representing both the resident reports and rat suitability models.
                         </p>
                     </div>
                 </div>
@@ -79,10 +78,7 @@
                 <div class="row titlerow">
                     <div class="col-2 titlecolumn">
                         <div class="titleborder" id="gallerytitleborder"></div>
-                        <h5 class="titleabs" id="gallery">Gallery</h5>
-                    </div>
-                    <div class="col-10 bodycolumn">
-                        <hr>
+                        <h5 class="titleabs">Gallery</h5>
                     </div>
                 </div>
                 <div class="row bodyrow">
@@ -122,22 +118,64 @@
                 </div>
             </div>
         </div>
-        <div id="mapsection"></div>
+        <div class="container section" id="mapsection">
+            <div class="subsection">
+                <div class="row titlerow">
+                    <div class="col-2 titlecolumn">
+                        <div class="titleborder" id="maptitleborder"></div>
+                        <h5 class="titleabs">Map</h5>
+                    </div>
+                </div>
+                <div class="row bodyrow">
+                    <div class="container">
+                        <p>
+                            The following image shows a map with the location concentrations of reports received through the SMS system. Areas of higher report concentrations
+                            are colored red. Sightings and evidence reports can be view individually or together. The slider can also be used to analyze report concentrations 
+                            over time. To use the map, simply click the button below the image.
+                        </p>
+                        <img class="img-fluid" src="{{url_for('static', filename='img/map.png')}}" alt="">
+                        <a class="btn-primary" href="{{url_for('map')}}">
+                            View Full Map
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container section" id="modelsection">
+            <div class="subsection">
+                <div class="row titlerow">
+                    <div class="col-2 titlecolumn">
+                        <div class="titleborder" id="modeltitleborder"></div>
+                        <h5 class="titleabs">Model</h5>
+                    </div>
+                </div>
+                <div class="row bodyrow">
+                    <div class="container">
+                        <p>
+                            The following image shows the model for the expected number of rat counts within Fulton County. This model is based on code violation data
+                            gathered from the Atlanta Citizen Gateway Portal and other data sources. To use the map, simply click the button below the image. Due to the
+                            large amount of data being processed, please be prepared to wait up to 10 seconds for the model to load.
+                        </p>
+                        <img class="img-fluid" src="{{url_for('static', filename='img/model.png')}}" alt="">
+                        <a class="btn-primary" href="{{url_for('model')}}">
+                            View Full Model
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="container section" id="statssection">
             <div class="subsection">
                 <div class="row titlerow">
                     <div class="col-2 titlecolumn">
-                        <div class="titleborder"></div>
-                        <h5 class="titleabs" id="stats">Stats</h5>
-                    </div>
-                    <div class="col-10 bodycolumn">
-                        <hr>
+                        <div class="titleborder" id="statstitleborder"></div>
+                        <h5 class="titleabs">Stats</h5>
                     </div>
                 </div>
                 <div class="row bodyrow">
                     <div class="container">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-lg-4">
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="container">
@@ -151,7 +189,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-lg-4">
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="container">
@@ -165,7 +203,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-lg-4">
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="container">
@@ -183,7 +221,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-lg-4">
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="container">
@@ -197,7 +235,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-lg-4">
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="container">
@@ -211,7 +249,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-lg-4">
                                 <div class="card">
                                     <div class="card-body">
                                         <div class="container">
@@ -235,20 +273,23 @@
                 <div class="row titlerow">
                     <div class="col-2 titlecolumn">
                         <div class="titleborder" id="contacttitleborder"></div>
-                        <h5 class="titleabs" id="contact">Contact</h5>
-                    </div>
-                    <div class="col-10 bodycolumn">
-                        <hr>
+                        <h5 class="titleabs">Contact</h5>
                     </div>
                 </div>
                 <div class="row bodyrow">
-                    <div class="col-md-2 titlecolumn"></div>
-                    <div class="col-md-10 bodycolumn">
-                        <div>
-                            <h5>Dr. Ellen Zegura</h5>
-                            <h5>Georgia Institute of Technology</h5>
-                            <h5>ewz@cc.gatech.edu</h5>
-                        </div>
+                    <div class="col-md-6" id="ellen">
+                        <h5>Dr. Ellen Zegura</h5>
+                        <h6 class="school">Georgia Institute of Technology</h6>
+                        <h6>
+                            <a class="email" href="mailto:ewz@cc.gatech.edu">ewz@cc.gatech.edu</a>
+                        </h6>
+                    </div>
+                    <div class="col-md-6" id="carl">
+                        <h5>Dr. Carl DiSalvo</h5>
+                        <h6 class="school">Georgia Institute of Technology</h6>
+                        <h6>
+                            <a class="email" href="mailto:carldisalvo@gatech.edu">carldisalvo@gatech.edu</a>
+                        </h6>
                     </div>
                 </div>
             </div>
@@ -261,21 +302,23 @@
         </div>
     </footer>
 
-    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js" integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
-        crossorigin=""></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
         crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
         crossorigin="anonymous"></script>
-    <script type="text/javascript" src="{{url_for('static', filename='js/leaflet-heat.js')}}"></script>
-    <script type="text/javascript" src="{{url_for('static', filename='js/slider-control.min.js')}}"></script>
-    <script type="text/javascript" src="{{url_for('static', filename='js/app.js')}}"></script>
-    <script type="text/javascript">
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js" integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="
+        crossorigin=""></script>
+    <script src="{{url_for('static', filename='js/leaflet-heat.js')}}"></script>
+    <script src="{{url_for('static', filename='js/slider-control.min.js')}}"></script>
+    <script src="{{url_for('static', filename='js/shp.js')}}"></script>
+    <script src="{{url_for('static', filename='js/app.js')}}"></script>
+    <script>
         var data = mergeSort(JSON.parse('{{data|tojson}}'));
     </script>
-    <script type="text/javascript" src="{{url_for('static', filename='js/map.js')}}"></script>
+    <script src="{{url_for('static', filename='js/map.js')}}"></script>
+    <script src="{{url_for('static', filename='js/stats.js')}}"></script>
 </body>
 
 </html>

@@ -21,6 +21,16 @@ def root():
     data = db.get_all_records()
     return render_template('index.html', data=data)
 
+@app.route('/map', methods=['GET'])
+def map():
+    db.execute(config.db_credentials, config.select_all_records)
+    data = db.get_all_records()
+    return render_template('map.html', data=data)
+
+@app.route('/model', methods=['GET'])
+def model():
+    return render_template('model.html')
+
 @app.route('/sms', methods=['POST'])
 def sms():
     session.permanent = True
