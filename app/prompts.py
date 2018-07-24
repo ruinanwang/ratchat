@@ -31,7 +31,7 @@ partial_address = ('Please make sure you are texting'
 + ' Please try again.')
 
 options = ('Great! Now just text one of the letters next'
-+ '  to the description of what you found/saw:\n\n'
++ ' to the description of what you found/saw:\n\n'
 + ' A = Saw a live rat outside\n'
 + ' B = Saw a live rat inside\n'
 + ' C = Saw a dead rat outside\n'
