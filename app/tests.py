@@ -21,26 +21,34 @@ class Test1Geocoder(TestBase):
         self.assertNotEqual(lon, None)
         self.assertNotEqual(address, None)
 
-class Test2Sms(TestBase):
-
-    def test_1_web_page(self):
+class Test2Website(TestBase):
+    def test_1_home_page(self):
         with self.app as app:
             response = app.get('/', follow_redirects=True)
             self.assertEqual(response.status_code, 200)
+    def test_2_map_page(self):
+        with self.app as app:
+            response = app.get('/map', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+    def test_3_model_page(self):
+        with self.app as app:
+            response = app.get('/model', follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
 
-    def test_2_message_retrieval(self):
+class Test2Sms(TestBase):
+    def test_1_message_retrieval(self):
         with self.app as app:
             response = app.post('/sms', data={'Body':'RAT', 'NumMedia': 0}, follow_redirects=True)
             self.assertEqual(flask.session['counter'], 1) 
             self.assertEqual(response.status_code, 200)
     
-    def test_3_image_retrieval(self):
+    def test_2_image_retrieval(self):
         with self.app as app:
             response = app.post('/sms', data={'NumMedia': 1, 'MessageSid': 'test', 'MediaUrl0':'https://s3-external-1.amazonaws.com/media.twiliocdn.com/AC97a88511292ce1c17f84155aae5fdff5/45d0bd8624bc06dd74c042cd2fa3eff7'}, follow_redirects=True)
             self.assertEqual(flask.session['counter'], 1) 
             self.assertEqual(response.status_code, 200)
 
-    def test_4_too_many_images(self):
+    def test_3_too_many_images(self):
         with self.app as app:
             response = app.post('/sms', data={'NumMedia': 2}, follow_redirects=True)
             self.assertNotIn('counter', flask.session) 
