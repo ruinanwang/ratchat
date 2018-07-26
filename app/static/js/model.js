@@ -1,5 +1,5 @@
 
-//model.js 
+// model.js 
 
 // Create model and add a tile to it
 var model = L.map('model', {

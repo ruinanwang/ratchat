@@ -1,6 +1,7 @@
 
-// Sort data into seperate variables
+// stats.js 
 
+// Sort data into seperate variables
 var sightingData = (function () {
     var sightings = [];
     for (var i = 0; i < data.length; i++) {

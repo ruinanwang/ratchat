@@ -82,7 +82,7 @@ def address():
         db.execute(config.db_credentials, config.update_address, (session['address'], None, None, None, 0, session['row_id']))
         session['counter'] = 2
         message.body(prompts.options)
-    elif user_input_test.isnumeric() or user_input_test.isalpha():
+    elif user_input_test.isnumeric() or user_input_test.isalpha() or (not user_input_test[0].isnumeric()):
         message.body(prompts.partial_address)
     elif lat != None and lon != None and address != None:
         db.execute(config.db_credentials, config.update_address, (user_input, address, lat, lon, 1, session['row_id']))

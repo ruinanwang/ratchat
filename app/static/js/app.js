@@ -1,30 +1,51 @@
 
 // app.js
 
-// Function that makes scrolling smooth when clicking
-// on links.
+$(document).ready(function () {
+  // Smooth scrolling function
+  $("a").on('click', function (event) {
+    if (this.hash !== "") {
+      event.preventDefault();
 
-$(document).ready(function() {
+      var hash = this.hash;
 
-  $("a").on('click', function(event) {
-      if (this.hash !== "") {
-        event.preventDefault();
-
-        var hash = this.hash;
-
-        $('html, body').animate({
-          scrollTop: $(hash).offset().top - 30
-        }, 800, function(){
-        });
-      }
+      $('html, body').animate({
+        scrollTop: $(hash).offset().top - 30
+      }, 800, function () {});
+    }
   });
 
-  $('.carousel').carousel({interval: false});
-
+  // Setting click listeners for side navigation
+  $("#menu").on('click', function () {
+    openNav();
+  });
+  
+  $("#overlay").on('click', function() {
+    closeNav();
+  });
 });
 
+// Functions for handling side navigation appearance
+function openNav() {
+  document.getElementById("sidebar").style.width = "200px";
+  document.getElementById("wrapper").style.marginRight = "200px";
+  document.getElementById("wrapper").style.marginLeft = "-200px";
+  document.getElementById("overlay").style.marginRight = "200px";
+  document.getElementById("overlay").style.marginLeft = "-200px";
+  document.getElementById("overlay").style.zIndex = "999";
+}
+
+function closeNav() {
+  document.getElementById("sidebar").style.width = "0";
+  document.getElementById("wrapper").style.marginRight = "0";
+  document.getElementById("wrapper").style.marginLeft = "0";
+  document.getElementById("overlay").style.marginRight = "0";
+  document.getElementById("overlay").style.marginLeft = "0";
+  document.getElementById("overlay").style.zIndex = "-999";
+}
+
 // Merge Sort Functions
-function mergeSort (arr) {
+function mergeSort(arr) {
   if (arr.length === 1) {
     return arr
   }
@@ -39,7 +60,7 @@ function mergeSort (arr) {
   )
 }
 
-function merge (left, right) {
+function merge(left, right) {
   let result = []
   let indexLeft = 0
   let indexRight = 0
