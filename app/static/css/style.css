@@ -274,9 +274,9 @@ body {
   width: 60px;
 }
 
-#contacttitleborder {
+#peopletitleborder {
   margin-left: 42px;
-  width: 94px;
+  width: 80px;
 }
 
 /* About */
@@ -358,13 +358,13 @@ body {
   margin-top: 16px;
 }
 
-/* Contact */
+/* People */
 
-#contactsection .bodyrow {
+#peoplesection .bodyrow {
   text-align: center;
 }
 
-#contactsection .bodyrow h6:nth-child(3) {
+#peoplesection .bodyrow h6:nth-child(3) {
   margin: 0;
 }
 
@@ -379,8 +379,37 @@ body {
   padding-left: 36px;
 }
 
-#contactsection h5 {
+#amanda {
+  text-align: center;
+}
+
+#amandarow {
+    margin-top: 0;
+    padding-bottom: 36px;
+}
+
+#michael {
+  border-right: 1px solid #FF4D4D;
+  text-align: right;
+  padding-right: 36px;
+}
+
+#winne {
+  text-align: left;
+  padding-left: 36px;
+}
+
+#peoplesection h5 {
   font-weight: bold;
+}
+
+#cdsfellows {
+  margin-top: 14px;
+  text-align: center;
+}
+
+#advisors {
+  text-align: center;
 }
 
 .school {
@@ -423,7 +452,7 @@ body {
 }
 
 @media only screen and (max-width: 767px) {
-  #contactsection #ellen {
+  #ellen {
     border-right: 0;
     border-left: 1px solid #FF4D4D;
     margin-left: 12px;
@@ -431,11 +460,46 @@ body {
     text-align: left;
     padding-left: 20px;
   }
-  #contactsection #carl {
+
+  #carl {
     border-left: 1px solid #FF4D4D;
     margin-left: 12px;
     padding-left: 20px;
   }
+
+  #michael {
+    border-right: 0;
+    border-left: 1px solid #FF4D4D;
+    margin-left: 12px;
+    margin-bottom: 24px;
+    text-align: left;
+    padding-left: 20px;
+  }
+
+  #winne {
+    border-left: 1px solid #FF4D4D;
+    margin-left: 12px;
+    padding-left: 20px;
+  }
+
+  #amanda {
+    border-left: 1px solid #FF4D4D;
+    margin-left: 12px;
+    padding-left: 20px;
+    text-align: left;
+  }
+
+  #cdsfellows {
+    margin-top: 28px;
+    text-align: left;
+    padding-left: 46px;
+  }
+
+  #advisors {
+    text-align: left;
+    padding-left: 46px;
+  }
+
 }
 
 @media only screen and (max-width: 466px) {

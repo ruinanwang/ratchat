@@ -56,3 +56,8 @@ document.getElementById('deadrats').innerHTML = deadRatCounter;
 document.getElementById('liverats').innerHTML = liveRatcounter;
 document.getElementById('evidenceaddress').innerHTML = mostRecentEvidence.address.slice(mostRecentEvidence.address.indexOf(' '));
 document.getElementById('evidencetype').innerHTML = mostRecentEvidence.chew_drop_hole.charAt(0).toUpperCase() + mostRecentEvidence.chew_drop_hole.slice(1);
+
+
+
+
+
